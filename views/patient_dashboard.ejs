@@ -1,11 +1,35 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>   </title>
-        <link rel="stylesheet" href="public/style.css">
-
-    </head>
-    <body>
-        
-    </body>
+<head>
+  <title>Patient Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Patient Dashboard</h1>
+  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
+  <% if (!patient.illness) { %>
+    <form method="POST" action="/patient/illness">
+      <textarea name="illness" placeholder="Describe your illness" required></textarea>
+      <button type="submit">Submit</button>
+    </form>
+  <% } else if (!patient.attended) { %>
+    <p>Waiting for confirmation email.</p>
+  <% } else { %>
+    <h2>Ongoing Treatment</h2>
+    <p>Timing: <%= patient.timing %></p>
+    <p>Progression: <%= patient.progression %></p>
+    <h3>Exercises</h3>
+    <ul>
+      <% exercises.forEach(ex => { %>
+        <li>
+          <%= ex.name %>: <%= ex.description %>
+          <br>Illustration: <%= ex.illustration_sequence %>
+          <br>Timer: <%= ex.timer %> minutes
+          <br>Checklist: <%= ex.checklist %>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+  <a href="/">Home</a>
+</body>
 </html>

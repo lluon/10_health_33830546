@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>   </title>
-        <link rel="stylesheet" href="public/style.css">
-
-    </head>
-    <body>
-        
-    </body>
+<head>
+  <title>Patient Details</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Patient: <%= patient.name %> <%= patient.surname %></h1>
+  <p>Illness: <%= patient.illness %></p>
+  <form method="POST" action="/therapist/assign/<%= patient.id %>">
+    <textarea name="exercises_json" placeholder='JSON array e.g. [{"name":"Exercise 01","description":"...","illustration_sequence":"...","timer":10,"checklist":"...","order_num":1}]' required></textarea>
+    <input type="text" name="timing" placeholder="Timing" required>
+    <textarea name="progression" placeholder="Progression" required></textarea>
+    <button type="submit">Assign Exercises & Send Confirmation</button>
+  </form>
+  <a href="/therapist/dashboard">Back</a>
+</body>
 </html>

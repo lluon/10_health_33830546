@@ -1,0 +1,49 @@
+body {
+    font-family: Arial; 
+    margin: 20px; 
+}
+
+h1 {
+    color: #333;
+}
+
+form {
+    margin: 20px 0;
+}
+
+input, 
+textarea, 
+select {
+    display: block;
+    margin: 10px 0;
+    padding: 8px;
+    width: 300px;
+}
+
+button {
+    padding: 8px 16px;
+    background: #006aff86;
+    color: white; 
+    border: none;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th { background: #f2f2f2; }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Admin Dashboard - Supervise All Users</h1>
+  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Role</th>
+      <th>Name</th>
+      <th>NHS Number</th>
+      <th>Email</th>
+      <th>Illness</th>
+      <th>Attended</th>
+      <th>Actions</th>
+    </tr>
+    <% patients.forEach(p => { %>
+      <tr>
+        <td><%= p.id %></td>
+        <td><%= p.username %></td>
+        <td><%= p.role %></td>
+        <td><%= p.name %> <%= p.surname %></td>
+        <td><%= p.nhs_number %></td>
+        <td><%= p.email %></td>
+        <td><%= p.illness ? p.illness.substring(0, 50) + '...' : 'None' %></td>
+        <td><%= p.attended ? 'Yes' : 'No' %></td>
+        <td>
+          <a href="/admin/edit/<%= p.id %>">Edit</a>
+          <form method="POST" action="/admin/delete/<%= p.id %>" style="display:inline;">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }); %>
+  </table>
+  <a href="/">Home</a>
+</body>
+</html>

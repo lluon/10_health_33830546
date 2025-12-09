@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Patient</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Edit Patient: <%= patient.name %> <%= patient.surname %></h1>
+  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
+  <form method="POST" action="/admin/edit/<%= patient.id %>">
+    <input type="text" name="name" value="<%= patient.name %>" required>
+    <input type="email" name="email" value="<%= patient.email %>" required>
+
+    <button type="submit">Update</button>
+  </form>
+  <a href="/admin/dashboard">Back</a>
+</body>
+</html>

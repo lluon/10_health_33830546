@@ -1,1 +1,9 @@
-home=https://doc.gold.ac.uk/usr/388/
+home=https://www.doc.gold.ac.uk/usr/388
+about=https://www.doc.gold.ac.uk/usr/388/about
+register=https://www.doc.gold.ac.uk/usr/388/register
+login=https://www.doc.gold.ac.uk/usr/388/login
+patient_dashboard=https://www.doc.gold.ac.uk/usr/388/patient/dashboard
+therapist_dashboard=https://www.doc.gold.ac.uk/usr/388/therapist/dashboard
+search_patients=https://www.doc.gold.ac.uk/usr/388/therapist/dashboard?search=example
+assign_exercise=https://www.doc.gold.ac.uk/usr/388/therapist/patient/1
+admin_dashboard=https://www.doc.gold.ac.uk/usr/388/admin/dashboard
