@@ -13,10 +13,7 @@ CREATE TABLE IF NOT EXISTS patients (
     address VARCHAR(255),
     email VARCHAR(255),
     illness TEXT,
-    attended BOOLEAN DEFAULT FALSE,
-    exercises_json JSON,
-    timing VARCHAR(255),
-    progression TEXT
+    attended BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS exercises (
@@ -30,18 +27,17 @@ CREATE TABLE IF NOT EXISTS exercises (
 
 CREATE TABLE IF NOT EXISTS ongoing_treatment (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    nhs_number VARCHAR(255) NOT NULL,
     timing VARCHAR(255),
     progression TEXT,
-    timer INT,
     FOREIGN KEY (nhs_number) REFERENCES patients(nhs_number)
 );
 
 CREATE TABLE IF NOT EXISTS treatment_exercise (
     id INT AUTO_INCREMENT PRIMARY KEY,
     treatment_id INT,
-    execise_id INT,
+    exercise_id INT,
     order_num INT,
     FOREIGN KEY (treatment_id) REFERENCES ongoing_treatment(id),
-    FOREIGN KEY (execise_id) REFERENCES exercises(id)
+    FOREIGN KEY (exercise_id) REFERENCES exercises(id)
 );

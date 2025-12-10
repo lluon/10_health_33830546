@@ -1,13 +1,17 @@
 USE health;
 
--- Pre-inserted admin
-INSERT INTO patients (username, password, role) VALUES ('gold', 'smiths123ABC$', 'admin');
+-- Insert admin user 'gold' with hashed password for 'smiths' (generated with bcrypt)
+INSERT INTO patients (username, password, role, name, surname, email) 
+VALUES ('gold', '$2b$12$eze1FkZvjnyi7pBuZVuYMOgBkiE7laSItxY.PO3PBRco54Wk4pzy.', 'admin', 'Gold', 'Smith', 'gold@smiths.com');
 
--- Pre-inserted physiotherapist
-INSERT INTO patients (username, password, role) VALUES ('Physiotherapist!0', '@43v3rF1t', 'therapist');
+-- Insert sample therapist
+INSERT INTO patients (username, password, role, name, surname, email) 
+VALUES ('Physioterapist!0', '$2b$12$eze1FkZvjnyi7pBuZVuYMOgBkiE7laSItxY.PO3PBRco54Wk4pzy.', 'therapist', 'Therapy', 'Pro', 'therapy@nhs.com');
 
--- Sample exercises for prescription compiler
-INSERT INTO exercises (name, description, illustration_sequence, timer, checklist) VALUES 
-('Exercise 01', 'Description of exercise 01', 'Illustration sequence 01', 10, 'Checklist for 01'),
-('Exercise 02', 'Description of exercise 02', 'Illustration sequence 02', 15, 'Checklist for 02'),
-('Exercise 03', 'Description of exercise 03', 'Illustration sequence 03', 20, 'Checklist for 03');
+-- Insert sample patient
+INSERT INTO patients (username, password, role, nhs_number, name, surname, dob, address, email, illness) 
+VALUES ('patient1', '$2b$12$eze1FkZvjnyi7pBuZVuYMOgBkiE7laSItxY.PO3PBRco54Wk4pzy.', 'patient', '1234567890', 'John', 'Doe', '1990-01-01', '123 Main St', 'john@doe.com', 'Back pain');
+
+-- Insert sample exercises
+INSERT INTO exercises (name, description, illustration_sequence, timer, checklist) 
+VALUES ('Stretch', 'Basic stretch', 'seq1', 5, 'Check posture');
