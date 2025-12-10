@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= exercise.name %></title>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body>
+        <% const params = JSON.parse(exercise.checklist); %>
+
+        <img src="/exercises/img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>" style="max-width: 300px;">
+        <h1>Step up with high knee and high arm</h1>
+        <br>
+        <h2>Client's aim</h2>
+        <p>To improve your ability to step up, balance and swing the arms.</p>
+        <br>
+        <h2>Client's instructions</h2>
+        <p>Position yourself with one foot on a block in front of you. Step forward and up, lifting your other knee to hip height and raising your opposite arm to the ceiling at the same time.</p>
+
+        <h3>Perform <%= params.reps %> sets of <%= params.duration %> reps/duration</h3>
+        <h3>Do <%= params.perWeek %> sessions per week</h3>
+
+        <div id="timer-widget">
+            <h2>Exercise Timer: <span id="time-display">Ready</span></h2>
+            <button id="start-timer">Start</button>
+        </div>
+    <script>
+    // The duration parameter is kept for display purposes (e.g., "5 minutes")
+    const prescribedDuration = '<%= params.duration %>'; 
+    
+    let timeElapsed = 0; // Initialize stopwatch counter (in seconds)
+    const timeDisplay = document.getElementById('time-display');
+    const startButton = document.getElementById('start-timer');
+    let timerInterval;
+    let isRunning = false;
+    
+    // Function to format seconds into MM:SS
+    function formatTime(totalSeconds) {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    function updateStopwatch() {
+        timeElapsed++;
+        timeDisplay.textContent = formatTime(timeElapsed);
+    }
+    
+    function toggleTimer() {
+        if (isRunning) {
+            // PAUSE logic
+            clearInterval(timerInterval);
+            startButton.textContent = "Continue";
+            isRunning = false;
+        } else {
+            // START / RESUME logic
+            timerInterval = setInterval(updateStopwatch, 1000);
+            startButton.textContent = "Pause";
+            isRunning = true;
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timeElapsed = 0;
+        isRunning = false;
+        timeDisplay.textContent = "0:00";
+        startButton.textContent = "Start";
+    }
+    
+    // Add a new "Reset" button dynamically
+    const timerWidget = document.getElementById('timer-widget');
+    const resetButton = document.createElement('button');
+    resetButton.textContent = "Redo / Reset";
+    resetButton.id = "reset-timer";
+    timerWidget.appendChild(resetButton);
+
+    // Event Listeners
+    startButton.addEventListener('click', toggleTimer);
+    resetButton.addEventListener('click', resetTimer);
+    
+    // Initial setup (Displaying 0:00)
+    timeDisplay.textContent = formatTime(timeElapsed);
+    </script>
+    </body>
+</html>
