@@ -1,35 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Patient Dashboard</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-  <h1>Patient Dashboard</h1>
-  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
-  <% if (!patient.illness) { %>
-    <form method="POST" action="/patient/illness">
-      <textarea name="illness" placeholder="Describe your illness" required></textarea>
-      <button type="submit">Submit</button>
-    </form>
-  <% } else if (!patient.attended) { %>
-    <p>Waiting for confirmation email.</p>
-  <% } else { %>
-    <h2>Ongoing Treatment</h2>
-    <p>Timing: <%= patient.timing %></p>
-    <p>Progression: <%= patient.progression %></p>
+<h2>Ongoing Treatment</h2>
+    <p>Timing: <%= treatment.timing %></p>
+    <p>Progression: <%= treatment.progression %></p>
     <h3>Exercises</h3>
     <ul>
       <% exercises.forEach(ex => { %>
+        <% 
+            // Attempt to parse checklist (safeguard against non-JSON data)
+            let params = {};
+            try { params = JSON.parse(ex.checklist); } catch (e) { /* default empty */ }
+        %>
         <li>
-          <%= ex.name %>: <%= ex.description %>
-          <br>Illustration: <%= ex.illustration_sequence %>
-          <br>Timer: <%= ex.timer %> minutes
-          <br>Checklist: <%= ex.checklist %>
+          **<%= ex.name %>**
+          <br>
+                    <img src="/exercises/img/<%= ex.illustration_sequence %>.jpg" alt="<%= ex.name %>" style="max-width: 150px; display: block; margin: 5px 0;">
+          <p>Instructions: <%= ex.description %></p>
+          
+          <h4>Prescription Details:</h4>
+          <p>
+                **Movement/Duration:** <%= params.duration %> 
+                <br>
+                **Repetition/Sets:** <%= params.reps %> 
+                <br>
+                **Weekly Sessions:** <%= params.perWeek %> 
+          </p>
         </li>
       <% }); %>
     </ul>
-  <% } %>
-  <a href="/">Home</a>
-</body>
-</html>
+<% } %>

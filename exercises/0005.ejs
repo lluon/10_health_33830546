@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= exercise.name %></title>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body>
+        <% const params = JSON.parse(exercise.checklist); %>
+
+        <img src="img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>">
+        <H1>Step up with high knee and high arm</H1>
+        <br>
+        <h2>Client`s aim</h2>
+        <p>To improve your ability to step up, balance and swing the arms.</p>
+        <br>
+        <h2>Client`s instructions</h2>
+        <p>Position yourself with one foot on a block in front of you. Step forward and up, lifting your other knee to hip height and raising your opposite arm to the ceiling at the same time.</p>
+
+        <h3>Perform <%= params.reps %> sets of <%= params.duration %> reps/duration</h3>
+        <h3>Do <%= params.perWeek %> sessions per week</h3>
+         
+    </body>
+</html>

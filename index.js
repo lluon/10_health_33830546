@@ -122,59 +122,76 @@ app.get('/therapist/patient/:id', requireLogin, requireRole('therapist'), async 
 });
 
 app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async (req, res) => {
-  const { exercises_json, timing, progression } = req.body;
-  const exercises = JSON.parse(exercises_json);
-  const [patientRows] = await pool.execute('SELECT nhs_number FROM patients WHERE id = ?', [req.params.id]);
-  const nhs_number = patientRows[0].nhs_number;
-
-  const [treatmentInsert] = await pool.execute(
-    'INSERT INTO ongoing_treatment (nhs_number, timing, progression) VALUES (?, ?, ?)',
-    [nhs_number, timing, progression]
-  );
-  const treatmentId = treatmentInsert.insertId;
-
-  for (const ex of exercises) {
-    const [exInsert] = await pool.execute(
-      'INSERT INTO exercises (name, description, illustration_sequence, timer, checklist) VALUES (?, ?, ?, ?, ?)',
-      [ex.name, ex.description, ex.illustration_sequence, ex.timer, ex.checklist]
-    );
-    const exerciseId = exInsert.insertId;
-    await pool.execute(
-      'INSERT INTO treatment_exercise (treatment_id, exercise_id, order_num) VALUES (?, ?, ?)',
-      [treatmentId, exerciseId, ex.order_num]
-    );
+  const patientId = req.params.id;
+  
+  // The req.body.exercises is now an object keyed by exercise ID
+  const exercisesObject = req.body.exercises || {};
+  // Convert the object of exercises into an array for ordered processing
+  const exercises = Object.values(exercisesObject);
+  
+  if (exercises.length === 0) {
+   req.flash('error', 'Please select at least one exercise');
+   return res.redirect(`/therapist/patient/${patientId}`);
   }
-
-  await pool.execute('UPDATE patients SET attended = TRUE WHERE id = ?', [req.params.id]);
-  emailController.sendConfirmation(req.params.id);
-  req.flash('success', 'Exercises assigned, email simulated, request marked as attended');
-  res.redirect('/therapist/dashboard');
+ 
+  try {
+   const [patientRows] = await pool.execute('SELECT nhs_number FROM patients WHERE id = ?', [patientId]);
+   const nhs_number = patientRows[0].nhs_number;
+  
+   // Create new treatment record, setting fixed timing and progression
+   const [treatmentResult] = await pool.execute(
+    'INSERT INTO ongoing_treatment (nhs_number, timing, progression) VALUES (?, ?, ?)',
+    [nhs_number, 'Custom assigned', 'Individual progression']
+   );
+   const treatmentId = treatmentResult.insertId;
+  
+   // Insert each exercise
+   for (let i = 0; i < exercises.length; i++) {
+    const ex = exercises[i];
+    
+    // Create a clear, descriptive description for the patient dashboard
+    const customDescription = `Perform for a duration/reps of ${ex.duration} in ${ex.reps} sets, for ${ex.perWeek} sessions per week.`;
+    
+    // 1. Insert a new custom-detailed exercise record
+    const [exResult] = await pool.execute(
+     'INSERT INTO exercises (name, description, illustration_sequence, timer, checklist) VALUES (?, ?, ?, ?, ?)',
+     [
+      ex.name,
+      customDescription,
+      ex.illustration_sequence, 
+      0, 
+      JSON.stringify({ duration: ex.duration, reps: ex.reps, perWeek: ex.perWeek }) // Storing assignment data
+     ]
+    );
+    const assignedExerciseId = exResult.insertId;
+   
+    // 2. Link the new exercise record to the ongoing treatment
+    await pool.execute(
+     'INSERT INTO treatment_exercise (treatment_id, exercise_id, order_num) VALUES (?, ?, ?)',
+     [treatmentId, assignedExerciseId, i + 1]
+    );
+   }
+  
+   await pool.execute('UPDATE patients SET attended = TRUE WHERE id = ?', [patientId]);
+   emailController.sendConfirmation(patientId);
+  
+   req.flash('success', `Successfully assigned ${exercises.length} exercise(s)!`);
+   res.redirect('/therapist/dashboard');
+  } catch (err) {
+   console.error(err);
+   req.flash('error', 'Failed to assign exercises');
+   res.redirect(`/therapist/patient/${patientId}`);
+  }
 });
 
-app.get('/admin/dashboard', requireLogin, requireRole('admin'), async (req, res) => {
-  const [rows] = await pool.execute('SELECT * FROM patients');
-  res.render('admin_dashboard', { patients: rows, messages: req.flash() });
-});
 
-app.get('/admin/edit/:id', requireLogin, requireRole('admin'), async (req, res) => {
-  const [rows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [req.params.id]);
-  res.render('admin_edit', { patient: rows[0], messages: req.flash() });
-});
+// Define the port, using the environment variable or a default
+const PORT = process.env.PORT || 8000;
 
-app.post('/admin/edit/:id', requireLogin, requireRole('admin'), async (req, res) => {
-  const { name, surname, email, illness } = req.body;
-  await pool.execute(
-    'UPDATE patients SET name = ?, surname = ?, email = ?, illness = ? WHERE id = ?',
-    [name, surname, email, illness, req.params.id]
-  );
-  req.flash('success', 'User updated');
-  res.redirect('/admin/dashboard');
+// Start the server
+app.listen(PORT, async () => {
+    // Optional: Log a message to the console when the server is ready
+    console.log(`Server running on http://localhost:${PORT}`);
+    
+    // Optional: Add initial admin user setup here if needed, but not strictly necessary for startup
 });
-
-app.post('/admin/delete/:id', requireLogin, requireRole('admin'), async (req, res) => {
-  await pool.execute('DELETE FROM patients WHERE id = ?', [req.params.id]);
-  req.flash('success', 'User deleted');
-  res.redirect('/admin/dashboard');
-});
-
-app.listen(8000, () => console.log('App running on port 8000'));

@@ -1,18 +1,139 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Patient Details</title>
+  <title>Assign Exercises to <%= patient.name %> <%= patient.surname %></title>
   <link rel="stylesheet" href="/style.css">
+  <style>
+        /* New Styles for Clarity */
+        .exercise-details p { margin-top: 5px; margin-bottom: 5px; }
+        .exercise-details img { border: 1px solid #ccc; padding: 5px; margin-top: 10px; }
+        .selection-row { margin-bottom: 20px; }
+        /* Inputs stacked vertically for clarity in assignment block */
+        .inline-input { display: block; margin: 5px 0 10px 0; width: 250px; } 
+        .exercise-item { border: 1px solid #006aff86; padding: 15px; margin-bottom: 15px; }
+        .exercise-details label { display: block; font-weight: bold; margin-top: 5px; }
+  </style>
 </head>
 <body>
   <h1>Patient: <%= patient.name %> <%= patient.surname %></h1>
-  <p>Illness: <%= patient.illness %></p>
-  <form method="POST" action="/therapist/assign/<%= patient.id %>">
-    <textarea name="exercises_json" placeholder='JSON array e.g. [{"name":"Exercise 01","description":"...","illustration_sequence":"...","timer":10,"checklist":"...","order_num":1}]' required></textarea>
-    <input type="text" name="timing" placeholder="Timing" required>
-    <textarea name="progression" placeholder="Progression" required></textarea>
+  <h2>Illness: <%= patient.illness %></h2>
+  
+  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
+  <% if (messages.error) { %><p class="error"><%= messages.error %></p><% } %>
+  
+  <form method="POST" action="/therapist/assign/<%= patient.id %>" id="assignment-form">
+    
+    <div class="selection-row">
+        <h3>1. Select and Add Exercises</h3>
+        <label for="exercise-select">Available Exercises:</label>
+        <select id="exercise-select">
+            <option value="">-- Choose an Exercise --</option>
+            <% exercises.forEach(ex => { %>
+                <option value='<%= JSON.stringify({ 
+                        id: ex.id, 
+                        name: ex.name, 
+                        description: ex.description, 
+                        illustration_sequence: ex.illustration_sequence,
+                        aim: ex.aim || 'To strengthen the affected area.' 
+                    }) %>'>
+                    <%= ex.name %>
+                </option>
+            <% }); %>
+        </select>
+        <button type="button" id="add-exercise-btn">Add Exercise</button>
+    </div>
+
+    <h3>2. Configure and Prescribe</h3>
+    <div id="prescribed-exercises">
+        <p id="no-exercises-message">No exercises assigned yet. Please select one above.</p>
+    </div>
+
+    <hr>
     <button type="submit">Assign Exercises & Send Confirmation</button>
   </form>
   <a href="/therapist/dashboard">Back</a>
+
+    <script>
+        const selectElement = document.getElementById('exercise-select');
+        const addBtn = document.getElementById('add-exercise-btn');
+        const prescribedContainer = document.getElementById('prescribed-exercises');
+        const noExercisesMessage = document.getElementById('no-exercises-message');
+        
+        let assignedExerciseIds = new Set(); 
+
+        function renderExercisePartial(exerciseData) {
+            // Manual HTML template for the dynamic content with clear labels
+            return `
+                <div class="exercise-item" data-id="${exerciseData.id}">
+                    <hr>
+                    <h3>${exerciseData.name}</h3>
+                    <div class="exercise-details">
+                        <img src="/exercises/img/${exerciseData.illustration_sequence}.jpg" alt="${exerciseData.name}" style="max-width: 200px; display: block; margin-bottom: 10px;">
+                        <p><strong>Client's Aim:</strong> ${exerciseData.aim || 'To be determined.'}</p>
+                        <p><strong>Instructions:</strong> ${exerciseData.description}</p>
+                        
+                        <label for="duration_${exerciseData.id}">Movement to perform:</label>
+                        <input type="number" id="duration_${exerciseData.id}" name="exercises[${exerciseData.id}][duration]" placeholder="e.g. 5 (minutes or reps)" value="5" min="1" required class="inline-input">
+                        
+                        <label for="reps_${exerciseData.id}">Repetition:</label>
+                        <input type="number" id="reps_${exerciseData.id}" name="exercises[${exerciseData.id}][reps]" placeholder="e.g. 10 (sets/reps)" value="10" min="1" required class="inline-input">
+                        
+                        <label for="perWeek_${exerciseData.id}">Weekly repetition:</label>
+                        <input type="number" id="perWeek_${exerciseData.id}" name="exercises[${exerciseData.id}][perWeek]" placeholder="e.g. 3 (sessions/week)" value="3" min="1" required class="inline-input">
+                        
+                        <input type="hidden" name="exercises[${exerciseData.id}][id]" value="${exerciseData.id}">
+                        <input type="hidden" name="exercises[${exerciseData.id}][name]" value="${exerciseData.name}">
+                        <input type="hidden" name="exercises[${exerciseData.id}][illustration_sequence]" value="${exerciseData.illustration_sequence}">
+                        
+                        <button type="button" class="remove-exercise-btn" data-id="${exerciseData.id}">Remove</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        addBtn.addEventListener('click', () => {
+            const selectedOption = selectElement.value;
+            if (!selectedOption) return;
+
+            const exerciseData = JSON.parse(selectedOption);
+
+            if (assignedExerciseIds.has(exerciseData.id)) {
+                alert(`${exerciseData.name} is already assigned.`);
+                return;
+            }
+
+            if (noExercisesMessage) {
+                // Check if the message is still in the DOM before attempting to remove it
+                const currentNoExercisesMessage = document.getElementById('no-exercises-message');
+                if (currentNoExercisesMessage) {
+                    currentNoExercisesMessage.remove();
+                }
+            }
+
+            prescribedContainer.insertAdjacentHTML('beforeend', renderExercisePartial(exerciseData));
+            assignedExerciseIds.add(exerciseData.id);
+            
+            selectElement.value = "";
+        });
+
+        prescribedContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-exercise-btn')) {
+                const idToRemove = parseInt(e.target.dataset.id);
+                const itemToRemove = e.target.closest(`.exercise-item[data-id="${idToRemove}"]`);
+                
+                if (itemToRemove) {
+                    itemToRemove.remove();
+                    assignedExerciseIds.delete(idToRemove);
+
+                    if (prescribedContainer.children.length === 0) {
+                        const newMsg = document.createElement('p');
+                        newMsg.id = 'no-exercises-message';
+                        newMsg.textContent = 'No exercises assigned yet. Please select one above.';
+                        prescribedContainer.appendChild(newMsg);
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= exercise.name %></title>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body>
+        <% const params = JSON.parse(exercise.checklist); %>
+
+        <img src="img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>">
+        <H1>Bound off a block with visual cues</H1>
+        <br>
+        <h2>Client`s aim</h2>
+        <p>To improve your ability to jump, run and balance.</p>
+        <br>
+        <h2>Client`s instructions</h2>
+        <p>Position yourself standing on a block with a marker indicating the size of the step required ( 60 cm in front of the block). Bound forward over the marker and land on one leg. Ensure that both feet are off the ground during the middle of the bound and that your knee bends when landing</p>
+
+        <h3>Perform <%= params.reps %> sets of <%= params.duration %> reps/duration</h3>
+        <h3>Do <%= params.perWeek %> sessions per week</h3>
+         
+    </body>
+</html>

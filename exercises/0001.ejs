@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= exercise.name %></title>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body>
+        <% const params = JSON.parse(exercise.checklist); %>
+
+        <img src="img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>">
+        <H1><%= exercise.name %></H1>
+        <br>
+        <h2>Client`s aim</h2>
+        <p>To strengthen the muscles that straighten your leg.</p>
+        <br>
+        <h2>Client`s instructions</h2>
+        <p>Position yourself standing. Practice sliding back and forwards with your unaffected leg. Ensure that both feet point forwards and the weight is mostly on the front leg. Ensure your front knee bends in line with the foot and you keep your pelvis level.</p>
+
+        <h3>Perform <%= params.reps %> sets of <%= params.duration %> reps/duration</h3>
+        <h3>Do <%= params.perWeek %> sessions per week</h3>
+         
+    </body>
+</html>
