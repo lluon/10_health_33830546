@@ -9,7 +9,9 @@
 
 </head>
 <body>
-  <h1>Patient Dashboard</h1>
+  <h1>NHS PhysioHUB</h1>
+  <hr>
+  <h2>Patient Dashboard</h2>
   <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
   
   <% if (!patient.illness) { %>
@@ -20,11 +22,11 @@
     </form>
   <% } else if (!patient.attended) { %>
     <h2>Status: Awaiting Appointment</h2>
-    <p>Waiting for your physiotherapist to assign a treatment plan.</p>
+    <p>Waiting for your physiotherapist to assign a treatment plan.</p> <br>
   <% } else if (treatment) { %>
-    <h2>Ongoing Treatment</h2>
-    <p>Timing: <%= treatment.timing %></p>
-    <p>Progression: <%= treatment.progression %></p>
+    <h2>Ongoing Treatment</h2> <br>
+    <p>Timing: <%= treatment.timing %></p> <br>
+    <p>Progression: <%= treatment.progression %></p> <br>
     <h3>Exercises</h3>
     <ul>
       <% exercises.forEach(ex => { 

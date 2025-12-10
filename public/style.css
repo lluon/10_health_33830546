@@ -43,7 +43,6 @@ textarea,
 select {
     font-family: "Montserrat", sans-serif;
     font-weight: 400;
-    font-optical-sizing: auto;
     letter-spacing: 0.5px;
     border-radius: 10px;
     display: block;
@@ -92,19 +91,32 @@ table {
 }
 
 th, td {
-    border: 1px solid #ddd;
+    border: 1px solid #ff0000;
     padding: 8px;
     text-align: left;
 }
 
-th { background: #f2f2f2; }
+tr:nth-child(even) {
+  background-color: #b75a5a79;
+}
+li:nth-child(even) {
+  background-color: #ded4d4ad;
+}
+
+
+
+
+th { background: #ff0000; }
 
 a:link, a:visited {
-  background-color: #ffffff;
-  color: rgb(0, 0, 0);
-  padding: 14px 60px;
-  text-align: center;
-  border-radius: 10px;
-  text-decoration: none;
-  display: inline-block;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 30px 60px;
+    margin: 10px;
+    text-align: center;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-block;
 }
