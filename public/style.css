@@ -1,10 +1,37 @@
-body {
-    font-family: Arial; 
-    margin: 20px; 
+.montserrat-regular {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400; 
+  font-style: normal;
 }
 
+.montserrat-bold-header {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+
+body {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    font-optical-sizing: auto;
+    margin: 20px;
+    letter-spacing: 0.5px;
+    color: white;
+    background: linear-gradient(145deg, rgb(0, 188, 209) 0%, rgb(33, 33, 152) 75%, rgb(1, 10, 99) 100%);
+    min-height: 100vh;
+}
+
+hr {
+  border-top: 1px solid rgb(255, 255, 255);
+}
+
+
 h1 {
-    color: #333;
+    font-size: xx-large;
+    color: #ffffff;
 }
 
 form {
@@ -14,25 +41,49 @@ form {
 input, 
 textarea, 
 select {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    font-optical-sizing: auto;
+    letter-spacing: 0.5px;
+    border-radius: 10px;
     display: block;
     margin: 10px 0;
-    padding: 8px;
+    padding: 14px 25px;
     width: 300px;
 }
 
 button {
-    padding: 8px 16px;
-    background: #006aff86;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+
+    padding: 14px 25px;
+    background: #ff0000;
+    border-radius: 10px;
     color: white; 
     border: none;
+    font-size: larger;
 }
 
 .success {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
     color: green;
+    background-color:white;
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .error {
-    color: red;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    color: rgb(255, 0, 0);
+    background-color:white;
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
 }
 
 table {
@@ -47,3 +98,13 @@ th, td {
 }
 
 th { background: #f2f2f2; }
+
+a:link, a:visited {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  padding: 14px 60px;
+  text-align: center;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-block;
+}

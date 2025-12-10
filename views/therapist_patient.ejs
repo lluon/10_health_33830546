@@ -3,6 +3,10 @@
 <head>
   <title>Assign Exercises to <%= patient.name %> <%= patient.surname %></title>
   <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
   <style>
         /* Custom Styles for Therapist Assignment Interface */
         .exercise-details p { margin-top: 5px; margin-bottom: 5px; }
@@ -10,7 +14,7 @@
         .selection-row { margin-bottom: 20px; }
         /* Inputs stacked vertically for clarity in assignment block */
         .inline-input { display: block; margin: 5px 0 10px 0; width: 250px; } 
-        .exercise-item { border: 1px solid #006aff86; padding: 15px; margin-bottom: 15px; }
+        .exercise-item { border: 3px solid #ffffff; padding: 15px; margin-bottom: 15px; }
         .exercise-details label { display: block; font-weight: bold; margin-top: 5px; }
         /* Make remove button clearly visible */
         .remove-exercise-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 10px; }
@@ -54,6 +58,7 @@
     <hr>
     <button type="submit">Assign Exercises & Send Confirmation</button>
   </form>
+  <br>
   <a href="/therapist/dashboard">Back</a>
 
     <script>

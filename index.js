@@ -12,7 +12,6 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(flash());
-// IMPORTANT: Assumes public is the static directory containing /exercise/img/
 app.use(express.static(path.join(__dirname, 'public'))); 
 
 const pool = mysql.createPool({
@@ -34,9 +33,10 @@ function requireRole(role) {
   };
 }
 
-// ------------------------------------
-// --- PUBLIC & AUTH ROUTES ---
-// ------------------------------------
+//_____________________________________
+//   PUBLIC & AUTH ROUTES   
+//_____________________________________
+
 app.get('/', (req, res) => res.render('home'));
 app.get('/about', (req, res) => res.render('about'));
 app.get('/register', (req, res) => res.render('register', { messages: req.flash() }));
@@ -46,6 +46,8 @@ app.post('/register', async (req, res) => {
   if (!['patient', 'therapist'].includes(role)) return res.status(400).send('Invalid role');
 
   // Password validation
+  //_____________________________________
+
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/;
   if (!passwordRegex.test(password)) {
     req.flash('error', 'Password must be 8+ characters with 1 lowercase, 1 uppercase, 1 number, 1 special char.');
@@ -82,9 +84,10 @@ app.post('/login', async (req, res) => {
 });
 
 
-// ------------------------------------
-// --- PATIENT ROUTES ---
-// ------------------------------------
+//_____________________________________
+//   PATIENT ROUTES   
+//_____________________________________
+
 app.get('/patient/dashboard', requireLogin, requireRole('patient'), async (req, res) => {
   const [patientRows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [req.session.userId]);
   const patient = patientRows[0];
@@ -114,7 +117,7 @@ app.post('/patient/illness', requireLogin, requireRole('patient'), async (req, r
   res.redirect('/patient/dashboard');
 });
 
-// --- NEW/FIXED ROUTE: INDIVIDUAL EXERCISE PAGE WITH TIMER ---
+// individual exercise 
 app.get('/exercise/:id', requireLogin, requireRole('patient'), async (req, res) => {
     const exerciseId = req.params.id;
     try {
@@ -140,9 +143,10 @@ app.get('/exercise/:id', requireLogin, requireRole('patient'), async (req, res) 
 });
 
 
-// ------------------------------------
-// --- THERAPIST ROUTES ---
-// ------------------------------------
+//_____________________________________
+//   THERAPIST ROUTES   
+//_____________________________________
+
 app.get('/therapist/dashboard', requireLogin, requireRole('therapist'), async (req, res) => {
   const query = req.query.search || '';
   const [rows] = await pool.execute(
@@ -159,7 +163,10 @@ app.get('/therapist/patient/:id', requireLogin, requireRole('therapist'), async 
   res.render('therapist_patient', { patient: patientRows[0], exercises: exRows, messages: req.flash() });
 });
 
-// --- ASSIGNMENT POST ROUTE ---
+//_____________________________________
+//   ASSIGNMENT POST ROUTE  
+//_____________________________________
+
 app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async (req, res) => {
   const patientId = req.params.id;
   
@@ -222,17 +229,19 @@ app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async 
   }
 });
 
-// ------------------------------------
-// --- ADMIN ROUTES (simple examples) ---
-// ------------------------------------
+//_____________________________________
+//   ADMIN ROUTES    
+//_____________________________________
+
 app.get('/admin/dashboard', requireLogin, requireRole('admin'), async (req, res) => {
   const [patients] = await pool.execute('SELECT * FROM patients');
   res.render('admin_dashboard', { patients, messages: req.flash() });
 });
 
-// ------------------------------------
-// --- SERVER STARTUP ---
-// ------------------------------------
+//_____________________________________
+//   SERVER STARTUP   
+//_____________________________________
+
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
