@@ -7,17 +7,59 @@
     <body>
         <% const params = JSON.parse(exercise.checklist); %>
 
-        <img src="img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>">
-        <H1>Bound off a block with visual cues</H1>
+        <img src="/exercises/img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>" style="max-width: 300px;">
+        <h1>Bound off a block with visual cues</h1>
         <br>
-        <h2>Client`s aim</h2>
+        <h2>Client's aim</h2>
         <p>To improve your ability to jump, run and balance.</p>
         <br>
-        <h2>Client`s instructions</h2>
+        <h2>Client's instructions</h2>
         <p>Position yourself standing on a block with a marker indicating the size of the step required ( 60 cm in front of the block). Bound forward over the marker and land on one leg. Ensure that both feet are off the ground during the middle of the bound and that your knee bends when landing</p>
 
         <h3>Perform <%= params.reps %> sets of <%= params.duration %> reps/duration</h3>
         <h3>Do <%= params.perWeek %> sessions per week</h3>
-         
+
+        <div id="timer-widget">
+            <h2>Exercise Timer: <span id="time-display">Ready</span></h2>
+            <button id="start-timer">Start Timer</button>
+        </div>
+
+
+        <script>
+            // FIX APPLIED: Safely injecting and parsing duration as an integer
+            const duration = parseInt('<%= params.duration %>', 10);
+            
+            let timeRemaining = duration * 60; // Convert to seconds
+            const timeDisplay = document.getElementById('time-display');
+            const startButton = document.getElementById('start-timer');
+            let timerInterval;
+
+            function updateTimer() {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+
+                timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    timeDisplay.textContent = "TIME UP!";
+                    startButton.disabled = true;
+                } else {
+                    timeRemaining--;
+                }
+            }
+
+            startButton.addEventListener('click', () => {
+                if (timerInterval) clearInterval(timerInterval); 
+                timeRemaining = duration * 60; // Reset time
+                startButton.disabled = true;
+                timerInterval = setInterval(updateTimer, 1000);
+                updateTimer(); 
+            });
+            
+            // Initial setup
+            const initialMinutes = Math.floor(timeRemaining / 60);
+            timeDisplay.textContent = `${initialMinutes}:00`;
+        </script>
     </body>
 </html>

@@ -12,7 +12,8 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(flash());
-app.use(express.static(path.join(__dirname, 'public')));
+// IMPORTANT: Assumes public is the static directory containing /exercise/img/
+app.use(express.static(path.join(__dirname, 'public'))); 
 
 const pool = mysql.createPool({
   host: process.env.HEALTH_HOST,
@@ -33,11 +34,11 @@ function requireRole(role) {
   };
 }
 
-// Routes
+// ------------------------------------
+// --- PUBLIC & AUTH ROUTES ---
+// ------------------------------------
 app.get('/', (req, res) => res.render('home'));
-
 app.get('/about', (req, res) => res.render('about'));
-
 app.get('/register', (req, res) => res.render('register', { messages: req.flash() }));
 
 app.post('/register', async (req, res) => {
@@ -80,6 +81,10 @@ app.post('/login', async (req, res) => {
   }
 });
 
+
+// ------------------------------------
+// --- PATIENT ROUTES ---
+// ------------------------------------
 app.get('/patient/dashboard', requireLogin, requireRole('patient'), async (req, res) => {
   const [patientRows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [req.session.userId]);
   const patient = patientRows[0];
@@ -88,7 +93,9 @@ app.get('/patient/dashboard', requireLogin, requireRole('patient'), async (req, 
   if (patient.attended) {
     const [treatmentRows] = await pool.execute('SELECT * FROM ongoing_treatment WHERE nhs_number = ?', [patient.nhs_number]);
     if (treatmentRows.length) {
-      treatment = treatmentRows[0];
+      // Get the *latest* treatment record
+      treatment = treatmentRows[treatmentRows.length - 1]; 
+      // Select the assigned exercises linked to the treatment
       const [exRows] = await pool.execute(
         'SELECT e.*, te.order_num FROM exercises e JOIN treatment_exercise te ON e.id = te.exercise_id WHERE te.treatment_id = ? ORDER BY te.order_num',
         [treatment.id]
@@ -101,11 +108,41 @@ app.get('/patient/dashboard', requireLogin, requireRole('patient'), async (req, 
 
 app.post('/patient/illness', requireLogin, requireRole('patient'), async (req, res) => {
   const { illness } = req.body;
-  await pool.execute('UPDATE patients SET illness = ?, attended = FALSE WHERE id = ?', [illness, req.session.userId]);
+  // Resetting attended to FALSE means they are back on the waiting list
+  await pool.execute('UPDATE patients SET illness = ?, attended = FALSE WHERE id = ?', [illness, req.session.userId]); 
   req.flash('success', 'Illness submitted, awaiting confirmation');
   res.redirect('/patient/dashboard');
 });
 
+// --- NEW/FIXED ROUTE: INDIVIDUAL EXERCISE PAGE WITH TIMER ---
+app.get('/exercise/:id', requireLogin, requireRole('patient'), async (req, res) => {
+    const exerciseId = req.params.id;
+    try {
+        // 1. Fetch the specific exercise record using the unique ID
+        const [rows] = await pool.execute('SELECT * FROM exercises WHERE id = ?', [exerciseId]);
+        
+        if (rows.length === 0) {
+            return res.status(404).send('Exercise not found');
+        }
+        
+        const exercise = rows[0];
+        
+        // 2. Construct the view name using the illustration_sequence (e.g., 'exercise/0001')
+        const viewName = `exercise/${exercise.illustration_sequence}`; 
+        
+        // 3. Render the correct EJS file, passing the exercise data
+        res.render(viewName, { exercise }); 
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error loading exercise page');
+    }
+});
+
+
+// ------------------------------------
+// --- THERAPIST ROUTES ---
+// ------------------------------------
 app.get('/therapist/dashboard', requireLogin, requireRole('therapist'), async (req, res) => {
   const query = req.query.search || '';
   const [rows] = await pool.execute(
@@ -117,16 +154,16 @@ app.get('/therapist/dashboard', requireLogin, requireRole('therapist'), async (r
 
 app.get('/therapist/patient/:id', requireLogin, requireRole('therapist'), async (req, res) => {
   const [patientRows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [req.params.id]);
-  const [exRows] = await pool.execute('SELECT * FROM exercises');
+  // Fetch *all* available base exercises for the therapist's dropdown
+  const [exRows] = await pool.execute('SELECT * FROM exercises WHERE id < 100'); // Assuming base exercises have small IDs
   res.render('therapist_patient', { patient: patientRows[0], exercises: exRows, messages: req.flash() });
 });
 
+// --- ASSIGNMENT POST ROUTE ---
 app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async (req, res) => {
   const patientId = req.params.id;
   
-  // The req.body.exercises is now an object keyed by exercise ID
   const exercisesObject = req.body.exercises || {};
-  // Convert the object of exercises into an array for ordered processing
   const exercises = Object.values(exercisesObject);
   
   if (exercises.length === 0) {
@@ -172,6 +209,7 @@ app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async 
     );
    }
   
+   // Set attended to TRUE after assignment and email confirmation
    await pool.execute('UPDATE patients SET attended = TRUE WHERE id = ?', [patientId]);
    emailController.sendConfirmation(patientId);
   
@@ -184,14 +222,18 @@ app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async 
   }
 });
 
+// ------------------------------------
+// --- ADMIN ROUTES (simple examples) ---
+// ------------------------------------
+app.get('/admin/dashboard', requireLogin, requireRole('admin'), async (req, res) => {
+  const [patients] = await pool.execute('SELECT * FROM patients');
+  res.render('admin_dashboard', { patients, messages: req.flash() });
+});
 
-// Define the port, using the environment variable or a default
+// ------------------------------------
+// --- SERVER STARTUP ---
+// ------------------------------------
 const PORT = process.env.PORT || 8000;
-
-// Start the server
-app.listen(PORT, async () => {
-    // Optional: Log a message to the console when the server is ready
-    console.log(`Server running on http://localhost:${PORT}`);
-    
-    // Optional: Add initial admin user setup here if needed, but not strictly necessary for startup
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

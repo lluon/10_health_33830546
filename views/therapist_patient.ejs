@@ -4,7 +4,7 @@
   <title>Assign Exercises to <%= patient.name %> <%= patient.surname %></title>
   <link rel="stylesheet" href="/style.css">
   <style>
-        /* New Styles for Clarity */
+        /* Custom Styles for Therapist Assignment Interface */
         .exercise-details p { margin-top: 5px; margin-bottom: 5px; }
         .exercise-details img { border: 1px solid #ccc; padding: 5px; margin-top: 10px; }
         .selection-row { margin-bottom: 20px; }
@@ -12,6 +12,9 @@
         .inline-input { display: block; margin: 5px 0 10px 0; width: 250px; } 
         .exercise-item { border: 1px solid #006aff86; padding: 15px; margin-bottom: 15px; }
         .exercise-details label { display: block; font-weight: bold; margin-top: 5px; }
+        /* Make remove button clearly visible */
+        .remove-exercise-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 10px; }
+        .remove-exercise-btn:hover { background-color: #c82333; }
   </style>
 </head>
 <body>
@@ -57,12 +60,10 @@
         const selectElement = document.getElementById('exercise-select');
         const addBtn = document.getElementById('add-exercise-btn');
         const prescribedContainer = document.getElementById('prescribed-exercises');
-        const noExercisesMessage = document.getElementById('no-exercises-message');
         
         let assignedExerciseIds = new Set(); 
 
         function renderExercisePartial(exerciseData) {
-            // Manual HTML template for the dynamic content with clear labels
             return `
                 <div class="exercise-item" data-id="${exerciseData.id}">
                     <hr>
@@ -102,18 +103,15 @@
                 return;
             }
 
-            if (noExercisesMessage) {
-                // Check if the message is still in the DOM before attempting to remove it
-                const currentNoExercisesMessage = document.getElementById('no-exercises-message');
-                if (currentNoExercisesMessage) {
-                    currentNoExercisesMessage.remove();
-                }
+            const currentNoExercisesMessage = document.getElementById('no-exercises-message');
+            if (currentNoExercisesMessage) {
+                currentNoExercisesMessage.remove();
             }
 
             prescribedContainer.insertAdjacentHTML('beforeend', renderExercisePartial(exerciseData));
             assignedExerciseIds.add(exerciseData.id);
             
-            selectElement.value = "";
+            selectElement.value = ""; 
         });
 
         prescribedContainer.addEventListener('click', (e) => {

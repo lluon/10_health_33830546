@@ -1,29 +1,57 @@
-<h2>Ongoing Treatment</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Patient Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Patient Dashboard</h1>
+  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
+  
+  <% if (!patient.illness) { %>
+    <h2>Submit Your Illness Description</h2>
+    <form method="POST" action="/patient/illness">
+      <textarea name="illness" placeholder="Describe your illness" required></textarea>
+      <button type="submit">Submit</button>
+    </form>
+  <% } else if (!patient.attended) { %>
+    <h2>Status: Awaiting Appointment</h2>
+    <p>Waiting for your physiotherapist to assign a treatment plan.</p>
+  <% } else if (treatment) { %>
+    <h2>Ongoing Treatment</h2>
     <p>Timing: <%= treatment.timing %></p>
     <p>Progression: <%= treatment.progression %></p>
     <h3>Exercises</h3>
     <ul>
-      <% exercises.forEach(ex => { %>
-        <% 
-            // Attempt to parse checklist (safeguard against non-JSON data)
+      <% exercises.forEach(ex => { 
             let params = {};
-            try { params = JSON.parse(ex.checklist); } catch (e) { /* default empty */ }
+            try { 
+                params = JSON.parse(ex.checklist); 
+            } catch (e) { 
+                console.error("Could not parse checklist for exercise:", ex.name, e);
+            }
         %>
         <li>
-          **<%= ex.name %>**
+                    <a href="/exercise/<%= ex.id %>"><strong><%= ex.name %></strong></a>
           <br>
                     <img src="/exercises/img/<%= ex.illustration_sequence %>.jpg" alt="<%= ex.name %>" style="max-width: 150px; display: block; margin: 5px 0;">
           <p>Instructions: <%= ex.description %></p>
           
           <h4>Prescription Details:</h4>
           <p>
-                **Movement/Duration:** <%= params.duration %> 
+                <strong>Movement/Duration:</strong> <%= params.duration || 'N/A' %> 
                 <br>
-                **Repetition/Sets:** <%= params.reps %> 
+                <strong>Repetition/Sets:</strong> <%= params.reps || 'N/A' %> 
                 <br>
-                **Weekly Sessions:** <%= params.perWeek %> 
-          </p>
+                <strong>Weekly Sessions:</strong> <%= params.perWeek || 'N/A' %> 
+          </p>S
         </li>
       <% }); %>
     </ul>
-<% } %>
+  <% } else { %>
+    <p>Your current status is ready for treatment, but no exercises have been assigned by your physiotherapist yet.</p>
+  <% } %>
+  <br>
+  <a href="/">Home</a>
+</body>
+</html>
