@@ -5,7 +5,10 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Register</h1>
+  <h1>NHS PhysioHUB</h1>
+  <hr>
+  <h2>Register</h2>
+  
   <% if (messages.error) { %><p class="error"><%= messages.error %></p><% } %>
   <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
   <form method="POST" action="/register">

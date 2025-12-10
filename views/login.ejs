@@ -5,7 +5,9 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Login</h1>
+  <h1>NHS PhysioHUB</h1>
+  <hr>
+  <h2>Login</h2>
   <% if (messages.error) { %><p class="error"><%= messages.error %></p><% } %>
   <form method="POST" action="/login">
     <input type="text" name="username" placeholder="Username" required>
