@@ -8,15 +8,15 @@ USE health;
 
 -- Insert admin user 
 INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('gold', '$2b$12$xM1l5DPAv/5wJoJ2luN.iuj/CZWCXZt8WrPuZfHMzYFfp/vFmEDmO', 'admin', 'gold', 'smiths', 'lluon001@gold.ac.uk');
+VALUES ('gold', '$2b$12$l4/8aMLf0BbLn2WmjwzRauwMWOUKJXR3hnGZV16EW2R2jwHA9pEtq', 'admin', 'gold', 'smiths', 'lluon001@gold.ac.uk');
 
 -- Insert therapist user
 INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('dave_rowland', '$2b$12$59LTp9xXKu3PfMvkzyKs/OwOuaAC1zQtB8ZytCxprh0.o1i7syHB6', 'therapist', 'Dave', 'Rowland', 'lluon001@gold.ac.uk');
+VALUES ('dave_rowland', '$2b$12$87tcpqpEJGHoYLl2/.88dOeb4Y7pJ.upWmk74hjQ4PRb6jBWTwtCO', 'therapist', 'Dave', 'Rowland', 'lluon001@gold.ac.uk');
 
 -- Insert patient user
 INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('sandroverrone', '$2b$12$PLACEHOLDER_HASH_FOR_L00K@TTH@T.8.zJ7', 'patient', 'Sandro', 'Verrone', 'lluon001@gold.ac.uk');
+VALUES ('sandroverrone', '$2b$12$Ucx1hDYMyOkanamFIbRqX.XdhKV9NoUc2DSIfY6szkLrECdXvxk8C', 'patient', 'Sandro', 'Verrone', 'lluon001@gold.ac.uk');
 
 -- Insert all six specific exercises (IDs will be 1 through 6 if table was empty)
 INSERT INTO exercises (name, description, illustration_sequence, timer, checklist) 

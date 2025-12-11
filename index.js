@@ -14,6 +14,13 @@ app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public'))); 
 
+// Define the PEPPER (Secret Key)
+const PEPPER = process.env.BCRYPT_PEPPER;
+if (!PEPPER) {
+    console.error("FATAL ERROR: BCRYPT_PEPPER environment variable is not set. Application is insecure/will fail.");
+    // In a real app, you might crash the server here
+}
+
 const pool = mysql.createPool({
   host: process.env.HEALTH_HOST,
   user: process.env.HEALTH_USER,
@@ -23,15 +30,28 @@ const pool = mysql.createPool({
 
 // Middleware
 function requireLogin(req, res, next) {
-  if (!req.session.userId) return res.redirect('/login');
+  if (!req.session.userId) {
+     req.flash('error', 'Please log in to access this page.');
+     return res.redirect('/login');
+  }
   next();
 }
 function requireRole(role) {
   return (req, res, next) => {
-    if (req.session.role !== role) return res.redirect('/login');
+    if (req.session.role !== role) {
+        req.flash('error', 'Access denied.');
+        return res.redirect('/login');
+    }
     next();
   };
 }
+
+// Middleware to expose session/flash messages to all views
+app.use((req, res, next) => {
+    res.locals.session = req.session;
+    res.locals.messages = req.flash();
+    next();
+});
 
 //_____________________________________
 //   PUBLIC & AUTH ROUTES   
@@ -39,48 +59,90 @@ function requireRole(role) {
 
 app.get('/', (req, res) => res.render('home'));
 app.get('/about', (req, res) => res.render('about'));
-app.get('/register', (req, res) => res.render('register', { messages: req.flash() }));
+app.get('/register', (req, res) => res.render('register'));
 
 app.post('/register', async (req, res) => {
   const { username, password, role, nhs_number, name, surname, dob, address, email } = req.body;
-  if (!['patient', 'therapist'].includes(role)) return res.status(400).send('Invalid role');
+  if (!['patient', 'therapist'].includes(role)) {
+    req.flash('error', 'Invalid role selection.');
+    return res.redirect('/register');
+  }
 
   // Password validation
-  //_____________________________________
-
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/;
   if (!passwordRegex.test(password)) {
     req.flash('error', 'Password must be 8+ characters with 1 lowercase, 1 uppercase, 1 number, 1 special char.');
     return res.redirect('/register');
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  // 1. Apply PEPPER before hashing
+  const pepperedPassword = password + PEPPER;
+  // Use salt rounds from your test data logic (12 is common and secure)
+  const hashedPassword = await bcrypt.hash(pepperedPassword, 12); 
+ 
   try {
     await pool.execute(
       'INSERT INTO patients (username, password, role, nhs_number, name, surname, dob, address, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [username, hashedPassword, role, nhs_number, name, surname, dob, address, email]
     );
-    req.flash('success', 'Registered successfully');
+    req.flash('success', 'Registered successfully. Please log in.');
     res.redirect('/login');
   } catch (err) {
-    req.flash('error', 'Error registering');
+    console.error(err);
+    if (err.code === 'ER_DUP_ENTRY') {
+        req.flash('error', 'Registration failed: Username or NHS number already exists.');
+    } else {
+        req.flash('error', 'Error registering user. Please try again.');
+    }
     res.redirect('/register');
   }
 });
 
-app.get('/login', (req, res) => res.render('login', { messages: req.flash() }));
+app.get('/login', (req, res) => res.render('login'));
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const [rows] = await pool.execute('SELECT * FROM patients WHERE username = ?', [username]);
-  if (rows.length && await bcrypt.compare(password, rows[0].password)) {
-    req.session.userId = rows[0].id;
-    req.session.role = rows[0].role;
-    res.redirect(`/${req.session.role}/dashboard`);
-  } else {
-    req.flash('error', 'Invalid credentials');
-    res.redirect('/login');
-  }
+  
+  try {
+        const [rows] = await pool.execute('SELECT id, password, role FROM patients WHERE username = ?', [username]);
+
+        if (rows.length === 0) {
+            req.flash('error', 'Invalid username or password.');
+            return res.redirect('/login');
+        }
+
+        const user = rows[0];
+        const storedHash = user.password;
+        
+        // 1. Apply PEPPER to the submitted password
+        const pepperedPasswordInput = password + PEPPER;
+
+        // 2. Compare the peppered input against the stored hash
+        const match = await bcrypt.compare(pepperedPasswordInput, storedHash);
+        
+        if (match) {
+            req.session.userId = user.id;
+            req.session.role = user.role;
+            req.session.username = username;
+            req.flash('success', `Welcome back, ${username}!`);
+            return res.redirect(`/${req.session.role}/dashboard`);
+        } else {
+            req.flash('error', 'Invalid username or password.');
+            return res.redirect('/login');
+        }
+    } catch (error) {
+        console.error('Login Error:', error);
+        req.flash('error', 'An unexpected error occurred during login.');
+        return res.redirect('/login');
+    }
+});
+
+
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) console.error('Logout error:', err);
+        res.redirect('/');
+    });
 });
 
 
@@ -106,14 +168,14 @@ app.get('/patient/dashboard', requireLogin, requireRole('patient'), async (req, 
       exercises = exRows;
     }
   }
-  res.render('patient_dashboard', { patient, exercises, treatment, messages: req.flash() });
+  res.render('patient_dashboard', { patient, exercises, treatment });
 });
 
 app.post('/patient/illness', requireLogin, requireRole('patient'), async (req, res) => {
   const { illness } = req.body;
   // Resetting attended to FALSE means they are back on the waiting list
   await pool.execute('UPDATE patients SET illness = ?, attended = FALSE WHERE id = ?', [illness, req.session.userId]); 
-  req.flash('success', 'Illness submitted, awaiting confirmation');
+  req.flash('success', 'Illness submitted, awaiting confirmation from your therapist.');
   res.redirect('/patient/dashboard');
 });
 
@@ -153,14 +215,22 @@ app.get('/therapist/dashboard', requireLogin, requireRole('therapist'), async (r
     'SELECT * FROM patients WHERE role = "patient" AND (name LIKE ? OR surname LIKE ? OR nhs_number = ? OR illness LIKE ?)',
     [`%${query}%`, `%${query}%`, query, `%${query}%`]
   );
-  res.render('therapist_dashboard', { patients: rows, messages: req.flash() });
+  res.render('therapist_dashboard', { patients: rows });
 });
 
 app.get('/therapist/patient/:id', requireLogin, requireRole('therapist'), async (req, res) => {
   const [patientRows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [req.params.id]);
   // Fetch *all* available base exercises for the therapist's dropdown
-  const [exRows] = await pool.execute('SELECT * FROM exercises WHERE id < 100'); // Assuming base exercises have small IDs
-  res.render('therapist_patient', { patient: patientRows[0], exercises: exRows, messages: req.flash() });
+  const [exRows] = await pool.execute('SELECT * FROM exercises WHERE illustration_sequence IS NOT NULL'); // Fetches base exercises
+  
+  // Fetch historical treatments for this patient
+  const [treatmentHistory] = await pool.execute('SELECT * FROM ongoing_treatment WHERE nhs_number = ? ORDER BY id DESC', [patientRows[0].nhs_number]);
+
+  res.render('therapist_patient', { 
+    patient: patientRows[0], 
+    exercises: exRows, 
+    treatmentHistory: treatmentHistory 
+  });
 });
 
 //_____________________________________
@@ -218,7 +288,7 @@ app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async 
   
    // Set attended to TRUE after assignment and email confirmation
    await pool.execute('UPDATE patients SET attended = TRUE WHERE id = ?', [patientId]);
-   emailController.sendConfirmation(patientId);
+   // emailController.sendConfirmation(patientId); // Uncomment if email functionality is ready
   
    req.flash('success', `Successfully assigned ${exercises.length} exercise(s)!`);
    res.redirect('/therapist/dashboard');
@@ -235,7 +305,7 @@ app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async 
 
 app.get('/admin/dashboard', requireLogin, requireRole('admin'), async (req, res) => {
   const [patients] = await pool.execute('SELECT * FROM patients');
-  res.render('admin_dashboard', { patients, messages: req.flash() });
+  res.render('admin_dashboard', { patients });
 });
 
 //_____________________________________
