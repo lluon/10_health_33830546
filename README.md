@@ -11,25 +11,50 @@ The application's necessity and potential impact are framed by this investigativ
 
 # OUTLINE
 
-The NHS PhysioHub is a web application for physiotherapy clinic management, supporting patient registration, illness reporting, exercise prescription, and treatment tracking. Patients register with name, surname, DOB, NHS number, email, address, username, password, and role ('patient'), then log in to submit illness descriptions and view assigned exercises with timers and checklists in their dashboard. Physiotherapists (pre-inserted: username 'Physiotherapist!0', password '@43v3rF1t', role 'therapist') evaluate requests, assign/update exercise plans, mark as attended, and send simulated confirmation emails with a quick-access button to the patient dashboard. Admins (pre-inserted: 'gold'/'smiths123ABC$', role 'admin') oversee content, including deletions. The app includes database searches for patients, role-based access, and MySQL storage in a single simplified table, integrating lab skills for health and fitness.
+The NHS Physio Hub is a dynamic web application developed as the core practical case study for the second-year Creative Computing course at Goldsmiths. Its primary objective is to prototype a functional, real-world solution for the health sector, specifically addressing delays in non-urgent NHS physiotherapy waiting lists.
+
+The application serves as a clinic management system with three key roles: Patient (e.g., sandroverrone), Therapist (e.g., dave_rowland), and Admin (e.g., gold). Patients register to submit illness reports, which physiotherapists review and triage. The system enables therapists to prescribe structured exercise plans, stored as JSON objects, which patients access in their personalised dashboards, complete with timers and checklists, effectively automating the delivery of standardised, non-urgent rehabilitation advice.
 
 # ARCHITECTURE
 
-The app employs a two-tier architecture, comprising an application tier for logic and interfaces, and a data tier for storage.
-Application tier: Node.js with Express for routing, sessions, forms, and authentication. EJS renders views, such as dashboards and searches.
-Data tier: MySQL with a single table for all data, queried via Express controllers.
-Diagram: The attached general diagram illustrates flows from NHS PhysioHub home to About, Register (fields: NHS number, name, surname, DOB, address, email, patient or therapist), Login, and role branches. Patients: illness form, waiting/confirmation emails, exercise list (01, 02, 03) with illustrations, descriptions, timers, and checklists. Physiotherapists: new illness descriptions, prescription compiler, ongoing treatments (NHS number, timing, progression). Admins: Supervise and edit all pages.
+The application uses a robust two-tier architecture:
+
+Application Tier: Built on Node.js and Express.js for routing, session management, and handling all application logic. EJS is used as the templating engine for rendering dynamic views. This tier features custom Role-Based Access Control (RBAC) middleware to secure routes.
+
+Data Tier: Utilizes a MySQL database. The entire application data is stored within a single, highly denormalized table to simplify the prototype’s data layer.
+
+The accompanying diagram illustrates the flow from the home page through registration, login, and subsequent role-branching to the respective patient, therapist, and admin dashboards.
+
+The application employs a single, denormalized table called patients. This table integrates all necessary data fields, including user credentials, personal information (PII), illness reports, and treatment plans.
+
+The key fields are: id (PK), username, password_hash, user type (crucial for RBAC), illness (TEXT), attended (TINYINT for waiting status), and the critical exercises_json (JSON type). exercises_json stores the therapist’s assigned treatment as an array of structured exercise objects, eliminating the need for separate exercise and treatment tables in this simplified prototype.
+
 
 # DATA MODEL
 
-Data model uses a single table, patients (integrating users, illnesses, treatments, and exercises), based on the diagram's DB structures.
+The application employs a single, denormalized table called patients. This table integrates all necessary data fields, including user credentials, personal information (PII), illness reports, and treatment plans.
 
+The key fields are: id (PK), username, password_hash, user type (crucial for RBAC), illness (TEXT), attended (TINYINT for waiting status), and the critical exercises_json (JSON type). exercises_json stores the therapist’s assigned treatment as an array of structured exercise objects, eliminating the need for separate exercise and treatment tables in this simplified prototype.
 
-Relationships: None (denormalised single table). Exercises are stored per patient in JSON for assignments; physiotherapists update directly. Pre-inserted rows for admin and therapist.
- 
-ER Diagram: Below is a Mermaid representation of the single entity:
- 
+er Diagram
 
+## Data Model Schema: `patients` Table
+
+| Field | Data Type | Role/Description | Notes |
+| :--- | :--- | :--- | :--- |
+| **`id`** | `INT` | Primary Key (PK) | Auto-incrementing |
+| **`username`** | `VARCHAR` | Unique username for login. | |
+| **`password_hash`** | `VARCHAR` | Encrypted password (hash). | Uses bcrypt |
+| **`user_type`** | `VARCHAR` | User's role: `patient`, `therapist`, or `admin`. | Crucial for RBAC |
+| **`nhs_number`** | `VARCHAR` | Patient's NHS number. | |
+| **`name`** | `VARCHAR` | First name. | |
+| **`surname`** | `VARCHAR` | Last name. | |
+| **`dob`** | `DATE` | Date of Birth. | |
+| **`email`** | `VARCHAR` | Email address. | |
+| **`address`** | `VARCHAR` | Residential address. | |
+| **`illness`** | `TEXT` | Patient's self-reported illness description. | |
+| **`attended`** | `TINYINT` | Request status: `0` (Waiting) or `1` (Assigned/Attended). | |
+| **`exercises_json`** | `JSON` | Assigned exercise plan (structured JSON array). | Contains the treatment plan |
 
 # USER FUNCTIONALLITY
 
