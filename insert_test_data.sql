@@ -1,22 +1,22 @@
 USE health;
 
--- Delete any existing test data to ensure a clean start
-DELETE FROM treatment_exercise;
-DELETE FROM ongoing_treatment;
-DELETE FROM exercises;
-DELETE FROM patients;
+-- Delete any existing test data 
+-- DELETE FROM treatment_exercise;
+-- DELETE FROM ongoing_treatment;
+-- DELETE FROM exercises;
+-- DELETE FROM patients;
 
--- Insert admin user 'gold' with hashed password for 'smiths'
+-- Insert admin user 
 INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('gold', '$2b$12$eze1FkZvjnyi7pBuZVuYMOgBkiE7laSItxY.PO3PBRco54Wk4pzy.', 'admin', 'Gold', 'Smith', 'gold@smiths.com');
+VALUES ('gold', '$2b$12$xM1l5DPAv/5wJoJ2luN.iuj/CZWCXZt8WrPuZfHMzYFfp/vFmEDmO', 'admin', 'gold', 'smiths', 'lluon001@gold.ac.uk');
 
--- Insert sample therapist
+-- Insert therapist user
 INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('Physioterapist!0', '$2b$12$eze1FkZvjnyi7pBuZVuYMOgBkiE7laSItxY.PO3PBRco54Wk4pzy.', 'therapist', 'Therapy', 'Pro', 'therapy@nhs.com');
+VALUES ('dave_rowland', '$2b$12$59LTp9xXKu3PfMvkzyKs/OwOuaAC1zQtB8ZytCxprh0.o1i7syHB6', 'therapist', 'Dave', 'Rowland', 'lluon001@gold.ac.uk');
 
--- Insert sample patient (for demonstration)
-INSERT INTO patients (username, password, role, nhs_number, name, surname, dob, address, email, illness, attended) 
-VALUES ('patient1', '$2b$12$eze1FkZvjnyi7pBuZVuYMOgBkiE7laSItxY.PO3PBRco54Wk4pzy.', 'patient', '1234567890', 'John', 'Doe', '1990-01-01', '123 Main St', 'john@doe.com', 'Knee Pain', FALSE);
+-- Insert patient user
+INSERT INTO patients (username, password, role, name, surname, email) 
+VALUES ('sandroverrone', '$2b$12$PLACEHOLDER_HASH_FOR_L00K@TTH@T.8.zJ7', 'patient', 'Sandro', 'Verrone', 'lluon001@gold.ac.uk');
 
 -- Insert all six specific exercises (IDs will be 1 through 6 if table was empty)
 INSERT INTO exercises (name, description, illustration_sequence, timer, checklist) 

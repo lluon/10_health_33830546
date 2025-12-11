@@ -1,3 +1,5 @@
+/* font style */
+
 .montserrat-regular {
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
@@ -12,7 +14,7 @@
   font-style: normal;
 }
 
-
+/* golbal body and layout */
 body {
     font-family: "Montserrat", sans-serif;
     font-weight: 400;
@@ -24,11 +26,12 @@ body {
     min-height: 100vh;
 }
 
+/* fillet */
 hr {
   border-top: 1px solid rgb(255, 255, 255);
 }
 
-
+/* tipography and forms */
 h1 {
     font-size: xx-large;
     color: #ffffff;
@@ -49,18 +52,20 @@ select {
     margin: 10px 0;
     padding: 14px 25px;
     width: 300px;
+    max-width: 90%;
 }
 
 button {
     font-family: "Montserrat", sans-serif;
     font-weight: 600;
-
     padding: 14px 25px;
     background: #ff0000;
     border-radius: 10px;
     color: white; 
     border: none;
     font-size: larger;
+    width: auto;
+    display:inline-block;
 }
 
 .success {
@@ -99,12 +104,6 @@ th, td {
 tr:nth-child(even) {
   background-color: #b75a5a79;
 }
-li:nth-child(even) {
-  background-color: #ded4d4ad;
-}
-
-
-
 
 th { background: #ff0000; }
 
@@ -119,4 +118,47 @@ a:link, a:visited {
     border-radius: 10px;
     text-decoration: none;
     display: inline-block;
+}
+
+
+/* _______________________________________ */
+/* 3. MOBILE STYLES (Max Width 480px)      */
+/* _______________________________________ */
+
+@media (max-width: 480px) {
+    body {
+        margin: 10px;
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: large;
+    }
+
+    input, 
+    textarea, 
+    select {
+        width: 95%; 
+        padding: 10px 15px;
+    }
+    
+    button {
+        padding: 12px 20px;
+        font-size: medium;
+        width: 100%; 
+        margin-bottom: 10px;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto; 
+        white-space: nowrap;
+    }
+    
+    a:link, a:visited {
+        padding: 12px 15px;
+        margin: 5px 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
