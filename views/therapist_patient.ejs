@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-  <style>
+<style>
         /* Custom Styles for Therapist Assignment Interface */
         .exercise-details p { margin-top: 5px; margin-bottom: 5px; }
         .exercise-details img { border: 1px solid #ccc; padding: 5px; margin-top: 10px; }
@@ -65,11 +65,12 @@
         const selectElement = document.getElementById('exercise-select');
         const addBtn = document.getElementById('add-exercise-btn');
         const prescribedContainer = document.getElementById('prescribed-exercises');
+        const noExercisesMessage = document.getElementById('no-exercises-message');
         
         let assignedExerciseIds = new Set(); 
 
-        function renderExercisePartial(exerciseData) {
-            return `
+            function renderExercisePartial(exerciseData) {
+                return `
                 <div class="exercise-item" data-id="${exerciseData.id}">
                     <hr>
                     <h3>${exerciseData.name}</h3>
@@ -78,14 +79,14 @@
                         <p><strong>Client's Aim:</strong> ${exerciseData.aim || 'To be determined.'}</p>
                         <p><strong>Instructions:</strong> ${exerciseData.description}</p>
                         
-                        <label for="duration_${exerciseData.id}">Movement to perform:</label>
-                        <input type="number" id="duration_${exerciseData.id}" name="exercises[${exerciseData.id}][duration]" placeholder="e.g. 5 (minutes or reps)" value="5" min="1" required class="inline-input">
+                        <label for="duration_${exerciseData.id}">Movement/Duration **(XX)**:</label>
+                        <input type="number" id="duration_${exerciseData.id}" name="exercises[${exerciseData.id}][duration]" value="5" min="1" required class="inline-input" style="width: 80px;">
                         
-                        <label for="reps_${exerciseData.id}">Repetition:</label>
-                        <input type="number" id="reps_${exerciseData.id}" name="exercises[${exerciseData.id}][reps]" placeholder="e.g. 10 (sets/reps)" value="10" min="1" required class="inline-input">
+                        <label for="reps_${exerciseData.id}">Repetition **(YY)** Sets/Reps:</label>
+                        <input type="number" id="reps_${exerciseData.id}" name="exercises[${exerciseData.id}][reps]" value="10" min="1" required class="inline-input" style="width: 80px;">
                         
-                        <label for="perWeek_${exerciseData.id}">Weekly repetition:</label>
-                        <input type="number" id="perWeek_${exerciseData.id}" name="exercises[${exerciseData.id}][perWeek]" placeholder="e.g. 3 (sessions/week)" value="3" min="1" required class="inline-input">
+                        <label for="perWeek_${exerciseData.id}">Weekly Repetition **(ZZ)** Sessions/Week:</label>
+                        <input type="number" id="perWeek_${exerciseData.id}" name="exercises[${exerciseData.id}][perWeek]" value="3" min="1" required class="inline-input" style="width: 80px;">
                         
                         <input type="hidden" name="exercises[${exerciseData.id}][id]" value="${exerciseData.id}">
                         <input type="hidden" name="exercises[${exerciseData.id}][name]" value="${exerciseData.name}">
@@ -97,46 +98,59 @@
             `;
         }
 
-        addBtn.addEventListener('click', () => {
-            const selectedOption = selectElement.value;
-            if (!selectedOption) return;
+            function handleAddExercise() {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (!selectedOption.value) return;
 
-            const exerciseData = JSON.parse(selectedOption);
-
-            if (assignedExerciseIds.has(exerciseData.id)) {
-                alert(`${exerciseData.name} is already assigned.`);
-                return;
-            }
-
-            const currentNoExercisesMessage = document.getElementById('no-exercises-message');
-            if (currentNoExercisesMessage) {
-                currentNoExercisesMessage.remove();
-            }
-
-            prescribedContainer.insertAdjacentHTML('beforeend', renderExercisePartial(exerciseData));
-            assignedExerciseIds.add(exerciseData.id);
-            
-            selectElement.value = ""; 
-        });
-
-        prescribedContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-exercise-btn')) {
-                const idToRemove = parseInt(e.target.dataset.id);
-                const itemToRemove = e.target.closest(`.exercise-item[data-id="${idToRemove}"]`);
+                try {
+                const exerciseData = JSON.parse(selectedOption.value);
                 
-                if (itemToRemove) {
-                    itemToRemove.remove();
-                    assignedExerciseIds.delete(idToRemove);
+                if (assignedExerciseIds.has(exerciseData.id)) {
+                    alert('This exercise is already assigned!');
+                    return;
+                }
 
-                    if (prescribedContainer.children.length === 0) {
-                        const newMsg = document.createElement('p');
-                        newMsg.id = 'no-exercises-message';
-                        newMsg.textContent = 'No exercises assigned yet. Please select one above.';
-                        prescribedContainer.appendChild(newMsg);
-                    }
+                    // Append the rendered HTML to the container
+                prescribedContainer.insertAdjacentHTML('beforeend', renderExercisePartial(exerciseData));
+                assignedExerciseIds.add(exerciseData.id);
+                
+                // Hide the "No exercises assigned yet" message
+                if (noExercisesMessage) {
+                    noExercisesMessage.style.display = 'none';
+                }
+
+                    // Reset selection to the placeholder
+                selectElement.selectedIndex = 0;
+            } catch (error) {
+                console.error("Error parsing exercise data:", error);
+            }
+        }
+
+            function handleRemoveExercise(event) {
+            if (event.target.classList.contains('remove-exercise-btn')) {
+                const button = event.target;
+                const exerciseId = parseInt(button.getAttribute('data-id'));
+                const exerciseItem = button.closest('.exercise-item');
+                
+                if (exerciseItem) {
+                    exerciseItem.remove();
+                    assignedExerciseIds.delete(exerciseId);
+                }
+
+                    // Show the "No exercises assigned yet" message if the list is empty
+                if (assignedExerciseIds.size === 0 && noExercisesMessage) {
+                    noExercisesMessage.style.display = 'block';
                 }
             }
-        });
+        }
+
+        addBtn.addEventListener('click', handleAddExercise);
+        prescribedContainer.addEventListener('click', handleRemoveExercise);
+
+        // Initial check to show/hide the message
+        if (assignedExerciseIds.size === 0 && noExercisesMessage) {
+            noExercisesMessage.style.display = 'block';
+        }
     </script>
 </body>
 </html>

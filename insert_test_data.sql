@@ -8,15 +8,44 @@ USE health;
 
 -- Insert admin user 
 INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('gold', '$2b$12$l4/8aMLf0BbLn2WmjwzRauwMWOUKJXR3hnGZV16EW2R2jwHA9pEtq', 'admin', 'gold', 'smiths', 'lluon001@gold.ac.uk');
+VALUES ('gold', 
+        '$2b$12$l4/8aMLf0BbLn2WmjwzRauwMWOUKJXR3hnGZV16EW2R2jwHA9pEtq',
+        'admin',
+        'gold',
+        'smiths',
+        'lluon001@gold.ac.uk',
+        '0000000001',
+        '1980-01-01',
+        '1 Admin Way'
+        );
 
 -- Insert therapist user
 INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('dave_rowland', '$2b$12$87tcpqpEJGHoYLl2/.88dOeb4Y7pJ.upWmk74hjQ4PRb6jBWTwtCO', 'therapist', 'Dave', 'Rowland', 'lluon001@gold.ac.uk');
+VALUES ('dave_rowland',
+        '$2b$12$87tcpqpEJGHoYLl2/.88dOeb4Y7pJ.upWmk74hjQ4PRb6jBWTwtCO',
+        'therapist',
+        'Dave',
+        'Rowland',
+        'lluon001@gold.ac.uk'
+        '1111111112',
+        '1985-05-15',
+        '2 Therapy Lane'
+
+        );
 
 -- Insert patient user
 INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('sandroverrone', '$2b$12$Ucx1hDYMyOkanamFIbRqX.XdhKV9NoUc2DSIfY6szkLrECdXvxk8C', 'patient', 'Sandro', 'Verrone', 'lluon001@gold.ac.uk');
+VALUES ('sandroverrone',
+        '$2b$12$Ucx1hDYMyOkanamFIbRqX.XdhKV9NoUc2DSIfY6szkLrECdXvxk8C',
+        'patient',
+        'Sandro',
+        'Verrone',
+        'lluon001@gold.ac.uk'
+        '1234567890',
+        '1995-10-20', 
+        '3 Patient St',
+        'lower left leg pain' -- Set initial illness for patient dashboard        
+        );
 
 -- Insert all six specific exercises (IDs will be 1 through 6 if table was empty)
 INSERT INTO exercises (name, description, illustration_sequence, timer, checklist) 

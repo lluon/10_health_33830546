@@ -35,15 +35,19 @@
         <td><%= p.illness ? p.illness.substring(0, 50) + '...' : 'None' %></td>
         <td><%= p.attended ? 'Yes' : 'No' %></td>
         <td>
-          <a href="/admin/edit/<%= p.id %>">Edit</a>
-          <form method="POST" action="/admin/delete/<%= p.id %>" style="display:inline;">
-            <button type="submit">Delete</button>
+          <a href="/admin/edit/<%= p.id %>" class="action-btn edit-btn">Edit</a>
+
+          <form method="POST" 
+          	action="/admin/delete/<%= p.id %>" 
+          	style="display: inline-block; margin-left: 5px;" 
+          	onsubmit="return confirm('WARNING: Are you sure you want to set <%= p.username %> to INACTIVE? They will not be able to log in.');">
+          	<button type="submit" class="action-btn delete-btn">Set Inactive</button>
           </form>
         </td>
       </tr>
-    <% }); %>
-  </table>
-  <br>
-  <a href="/">Home</a>
+  <% }); %>
+</table>
+<br>
+<a href="/">Home</a>
 </body>
 </html>
