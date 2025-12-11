@@ -313,10 +313,11 @@ app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async 
             );
         }
         
-        // Set attended to TRUE after assignment and email confirmation
+// Set attended to TRUE after assignment
         await pool.execute('UPDATE patients SET attended = TRUE WHERE id = ?', [patientId]);
-        await emailController.sendConfirmation(patientId); 
-        
+//  ADDITION FOR THE SIMULATED EMAIL 
+        await emailController.sendConfirmation(patientId);
+
         req.flash('success', `Successfully assigned ${exercises.length} exercise(s)!`);
         res.redirect('/therapist/dashboard');
     } catch (err) {
@@ -338,10 +339,10 @@ app.get('/admin/dashboard', requireLogin, requireRole('admin'), async (req, res)
 });
 
 
-// --- NEW: GET /admin/edit/:id (Fixes Cannot GET /admin/edit/13) ---
+//  ADMIN EDIT 
 app.get('/admin/edit/:id', requireLogin, requireRole('admin'), async (req, res) => {
     const patientId = req.params.id;
-    
+
     try {
         const [rows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [patientId]);
         const patient = rows[0];
@@ -388,7 +389,7 @@ app.post('/admin/edit/:id', requireLogin, requireRole('admin'), async (req, res)
 });
 
 
-// ADMIN DELETE (SOFT DELETE / DEACTIVATION) 
+// ADMIN DELETE ( DEACTIVATION) 
 app.post('/admin/delete/:id', requireLogin, requireRole('admin'), async (req, res) => {
     const patientId = req.params.id;
 
