@@ -320,4 +320,3 @@ The critical, custom-developed components—including the security implementatio
 
 Educational project created by Lucio Luongo (338305446) for the Dynamic Web Applications module in Creative Computing. © 2025 – Goldsmiths, University of London
 
-AI DECLARATION: AI tools were used for correcting report formatting, refining the research question, and generating boilerplate Express routing/Markdown tables. The core security mechanisms (RBAC, Salt & Pepper), the single-table JSON data model, and the patient triage/assignment logic were independently designed, coded, and tested.
