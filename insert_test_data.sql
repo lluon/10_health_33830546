@@ -1,13 +1,13 @@
 USE health;
 
 -- Delete any existing test data 
--- DELETE FROM treatment_exercise;
--- DELETE FROM ongoing_treatment;
--- DELETE FROM exercises;
--- DELETE FROM patients;
+DELETE FROM treatment_exercise;
+DELETE FROM ongoing_treatment;
+DELETE FROM exercises;
+DELETE FROM patients;
 
 -- Insert admin user 
-INSERT INTO patients (username, password, role, name, surname, email) 
+INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address) 
 VALUES ('gold', 
         '$2b$12$l4/8aMLf0BbLn2WmjwzRauwMWOUKJXR3hnGZV16EW2R2jwHA9pEtq',
         'admin',
@@ -44,7 +44,7 @@ VALUES ('sandroverrone',
         '1234567890',
         '1995-10-20', 
         '3 Patient St',
-        'lower left leg pain' -- Set initial illness for patient dashboard        
+        'lower left leg pain' 
         );
 
 -- Insert all six specific exercises (IDs will be 1 through 6 if table was empty)
