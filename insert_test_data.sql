@@ -1,53 +1,59 @@
 USE health;
 
 -- Delete any existing test data 
+-- NOTE: Foreign key constraints mean you must delete from child tables first.
 DELETE FROM treatment_exercise;
 DELETE FROM ongoing_treatment;
 DELETE FROM exercises;
 DELETE FROM patients;
 
 -- Insert admin user 
+-- The table has 12 columns. We list 9 and let the remaining (illness, attended) default to NULL/FALSE.
 INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address) 
-VALUES ('gold', 
-        '$2b$12$l4/8aMLf0BbLn2WmjwzRauwMWOUKJXR3hnGZV16EW2R2jwHA9pEtq',
-        'admin',
-        'gold',
-        'smiths',
-        'lluon001@gold.ac.uk',
-        '0000000001',
-        '1980-01-01',
-        '1 Admin Way'
-        );
+VALUES (
+    'gold', 
+    '$2b$12$l4/8aMLf0BbLn2WmjwzRauwMWOUKJXR3hnGZV16EW2R2jwHA9pEtq', -- Hashed 'adminpass'
+    'admin',
+    'gold',
+    'smiths',
+    'lluon001@gold.ac.uk',
+    '0000000001', 
+    '1980-01-01',
+    '1 Admin Way'
+);
 
 -- Insert therapist user
-INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('dave_rowland',
-        '$2b$12$87tcpqpEJGHoYLl2/.88dOeb4Y7pJ.upWmk74hjQ4PRb6jBWTwtCO',
-        'therapist',
-        'Dave',
-        'Rowland',
-        'lluon001@gold.ac.uk'
-        '1111111112',
-        '1985-05-15',
-        '2 Therapy Lane'
+INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address) 
+VALUES (
+    'dave_rowland',
+    '$2b$12$87tcpqpEJGHoYLl2/.88dOeb4Y7pJ.upWmk74hjQ4PRb6jBWTwtCO', -- Hashed 'therapass'
+    'therapist',
+    'Dave',
+    'Rowland',
+    'lluon001@gold.ac.uk',
+    '1111111112',
+    '1985-05-15',
+    '2 Therapy Lane'
+);
 
-        );
+-- Insert patient user 
+-- This user is provided an initial illness, so we must list the 'illness' column.
+INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address, illness) 
+VALUES (
+    'sandroverrone',
+    '$2b$12$Ucx1hDYMyOkanamFIbRqX.XdhKV9NoUc2DSIfY6szkLrECdXvxk8C', -- Hashed 'patientpass'
+    'patient',
+    'Sandro',
+    'Verrone',
+    'lluon001@gold.ac.uk',
+    '1234567890', 
+    '1995-10-20', 
+    '3 Patient St',
+    'lower left leg pain'
+);
 
--- Insert patient user
-INSERT INTO patients (username, password, role, name, surname, email) 
-VALUES ('sandroverrone',
-        '$2b$12$Ucx1hDYMyOkanamFIbRqX.XdhKV9NoUc2DSIfY6szkLrECdXvxk8C',
-        'patient',
-        'Sandro',
-        'Verrone',
-        'lluon001@gold.ac.uk'
-        '1234567890',
-        '1995-10-20', 
-        '3 Patient St',
-        'lower left leg pain' 
-        );
-
--- Insert all six specific exercises (IDs will be 1 through 6 if table was empty)
+-- Insert all six specific exercises
+-- NOTE: The 'checklist' column is used here to store the default prescription data
 INSERT INTO exercises (name, description, illustration_sequence, timer, checklist) 
 VALUES 
 ('Lunges sliding back and forwards', 'Position yourself standing. Practice sliding back and forwards with your unaffected leg.', '0001', 0, '{"duration": 5, "reps": 10, "perWeek": 3}'),
