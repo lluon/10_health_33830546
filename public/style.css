@@ -14,26 +14,55 @@
   font-style: normal;
 }
 
-/* golbal body and layout */
+/* global body and layout */
+
+/* Reset / Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
 body {
     font-family: "Montserrat", sans-serif;
     font-weight: 400;
     font-optical-sizing: auto;
+    padding: 20vh 30vw;
     margin: 20px;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     color: white;
-    background: linear-gradient(145deg, rgb(0, 188, 209) 0%, rgb(33, 33, 152) 75%, rgb(1, 10, 99) 100%);
+    background: linear-gradient(145deg, rgb(0, 122, 209) 0%, rgb(32, 97, 176) 75%, rgb(41, 155, 212) 100%);
     min-height: 100vh;
+}
+body > * {
+  max-width: 40vw;
+  margin: 0 auto;
 }
 
 /* fillet */
 hr {
   border-top: 1px solid rgb(255, 255, 255);
+    line-height: 5;
+
 }
 
 /* tipography and forms */
 h1 {
-    font-size: xx-large;
+    font-size: x-large;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #ffffff;
+    line-height: 4;
+
+
+}
+
+h2,h3 {
+    
+    font-size: large;
+    text-transform: uppercase;
+    letter-spacing: 3px;
     color: #ffffff;
 }
 
@@ -57,6 +86,9 @@ select {
 
 button {
     font-family: "Montserrat", sans-serif;
+    font-size: large;
+    text-transform: uppercase;
+    letter-spacing: 3px;
     font-weight: 600;
     padding: 14px 25px;
     background: #ff0000;
@@ -109,7 +141,9 @@ th { background: #ff0000; }
 
 a:link, a:visited {
     font-family: "Montserrat", sans-serif;
+    font-size: medium;
     font-weight: 700;
+    text-transform: uppercase;
     background-color: #ffffff;
     color: rgb(0, 0, 0);
     padding: 30px 60px;
