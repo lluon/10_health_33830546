@@ -6,13 +6,13 @@
         <p><strong>Client's Aim:</strong> <%= exercise.aim || 'To be determined.' %></p>
         <p><strong>Instructions:</strong> <%= exercise.description %></p>
         
-        <label for="duration_<%= exercise.id %>">Movement/Duration **(XX)**:</label>
+        <label for="duration_<%= exercise.id %>">DURATION (sec):</label>
         <input type="number" id="duration_<%= exercise.id %>" name="exercises[<%= exercise.id %>][duration]" value="5" min="1" required class="inline-input" style="width: 80px;">
         
-        <label for="reps_<%= exercise.id %>">Repetition **(YY)** Sets/Reps:</label>
+        <label for="reps_<%= exercise.id %>">REPETITION (t):</label>
         <input type="number" id="reps_<%= exercise.id %>" name="exercises[<%= exercise.id %>][reps]" value="10" min="1" required class="inline-input" style="width: 80px;">
         
-        <label for="perWeek_<%= exercise.id %>">Weekly Repetition **(ZZ)** Sessions/Week:</label>
+        <label for="perWeek_<%= exercise.id %>">WEEKLY REP (w)</label>
         <input type="number" id="perWeek_<%= exercise.id %>" name="exercises[<%= exercise.id %>][perWeek]" value="3" min="1" required class="inline-input" style="width: 80px;">
         
         <input type="hidden" name="exercises[<%= exercise.id %>][id]" value="<%= exercise.id %>">

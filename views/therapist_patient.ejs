@@ -17,12 +17,16 @@
         .exercise-item { padding: 30 px; margin-bottom: 30px; }
         .exercise-details label { display: block; font-weight: bold; margin-top: 5px; }
         /* Make remove button clearly visible */
-        .remove-exercise-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 10px; }
+        .remove-exercise-btn { background-color: #dc3545; color: white; border: none; padding: 10px 10px; cursor: pointer; margin-top: 50px; }
         .remove-exercise-btn:hover { background-color: #c82333; }
   </style>
 </head>
 <body>
+    <h1>NHS PhysioHUB</h1>
+    <hr>
   <h1>Patient: <%= patient.name %> <%= patient.surname %></h1>
+  <hr>
+  <br>
   <h2>Illness: <%= patient.illness %></h2>
   
   <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
@@ -31,8 +35,8 @@
   <form method="POST" action="/therapist/assign/<%= patient.id %>" id="assignment-form">
     
     <div class="selection-row">
-        <h3>1. Select and Add Exercises</h3>
-        <label for="exercise-select">Available Exercises:</label>
+        <h3>1. Select and Add Exercises</h3><br>
+        <label for="exercise-select">Available Exercises:</label><br>
         <select id="exercise-select">
             <option value="">-- Choose an Exercise --</option>
             <% exercises.forEach(ex => { %>
@@ -46,16 +50,16 @@
                     <%= ex.name %>
                 </option>
             <% }); %>
-        </select>
-        <button type="button" id="add-exercise-btn">Add Exercise</button>
+        </select><br>
+        <button type="button" id="add-exercise-btn">Add</button>
     </div>
 
-    <h3>2. Configure and Prescribe</h3>
+    <h3>2. Configure and Prescribe</h3><br>
     <div id="prescribed-exercises">
-        <p id="no-exercises-message">No exercises assigned yet. Please select one above.</p>
+        <p id="no-exercises-message">No exercises assigned yet. Please select one above.<br></p><br>
     </div>
 
-    <hr>
+    <hr><br><br>
     <button type="submit">Assign Exercises & Send Confirmation</button>
   </form>
   <br>
@@ -79,13 +83,13 @@
                         <p><strong>Client's Aim:</strong> ${exerciseData.aim || 'To be determined.'}</p>
                         <p><strong>Instructions:</strong> ${exerciseData.description}</p>
                         
-                        <label for="duration_${exerciseData.id}">Movement/Duration **(XX)**:</label>
+                        <label for="duration_${exerciseData.id}">DURATION (sec):</label>
                         <input type="number" id="duration_${exerciseData.id}" name="exercises[${exerciseData.id}][duration]" value="5" min="1" required class="inline-input" style="width: 80px;">
                         
-                        <label for="reps_${exerciseData.id}">Repetition **(YY)** Sets/Reps:</label>
+                        <label for="reps_${exerciseData.id}">REPETITION (t)</label>
                         <input type="number" id="reps_${exerciseData.id}" name="exercises[${exerciseData.id}][reps]" value="10" min="1" required class="inline-input" style="width: 80px;">
                         
-                        <label for="perWeek_${exerciseData.id}">Weekly Repetition **(ZZ)** Sessions/Week:</label>
+                        <label for="perWeek_${exerciseData.id}">WEEKLY REP (w)</label>
                         <input type="number" id="perWeek_${exerciseData.id}" name="exercises[${exerciseData.id}][perWeek]" value="3" min="1" required class="inline-input" style="width: 80px;">
                         
                         <input type="hidden" name="exercises[${exerciseData.id}][id]" value="${exerciseData.id}">

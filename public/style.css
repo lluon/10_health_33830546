@@ -40,12 +40,7 @@ body > * {
   margin: 0 auto;
 }
 
-/* fillet */
-hr {
-  border-top: 1px solid rgb(255, 255, 255);
-    line-height: 5;
 
-}
 
 /* tipography and forms */
 h1 {
@@ -58,9 +53,17 @@ h1 {
 
 }
 
-h2,h3 {
+h2 {
     
     font-size: large;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #ffffff;
+}
+
+h3 {
+    
+    font-size: medium;
     text-transform: uppercase;
     letter-spacing: 3px;
     color: #ffffff;
