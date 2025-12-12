@@ -12,7 +12,7 @@ DELETE FROM patients;
 INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address) 
 VALUES (
     'gold', 
-    '$2b$12$l4/8aMLf0BbLn2WmjwzRauwMWOUKJXR3hnGZV16EW2R2jwHA9pEtq', -- Hashed 'adminpass'
+    '$2b$12$/HeLfgkQbxjGDJN5HepP7eY3Mb5YbnGk/Fw35Hs9j.VTozlE.2iUu', -- Hashed 'adminpass'
     'admin',
     'gold',
     'smiths',
@@ -26,7 +26,7 @@ VALUES (
 INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address) 
 VALUES (
     'dave_rowland',
-    '$2b$12$87tcpqpEJGHoYLl2/.88dOeb4Y7pJ.upWmk74hjQ4PRb6jBWTwtCO', -- Hashed 'therapass'
+    '$2b$12$7vYelaQQk3DISwd54yLmveuluiUQktr3.c21G8rkOTvq7KPm3XiXW', -- Hashed 'therapass'
     'therapist',
     'Dave',
     'Rowland',
@@ -41,7 +41,7 @@ VALUES (
 INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address, illness) 
 VALUES (
     'sandroverrone',
-    '$2b$12$Ucx1hDYMyOkanamFIbRqX.XdhKV9NoUc2DSIfY6szkLrECdXvxk8C', -- Hashed 'patientpass'
+    '$2b$12$72t8LaarC/EKCNWIrEaHjuVwjZlOER.uP92mA14GsIa7cfv9KoJE.', -- Hashed 'patientpass'
     'patient',
     'Sandro',
     'Verrone',
