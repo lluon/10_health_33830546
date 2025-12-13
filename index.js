@@ -128,7 +128,7 @@ app.post('/login', async (req, res) => {
             req.session.role = user.role;
             req.session.username = username;
             req.flash('success', `Welcome back, ${username}!`);
-            return res.redirect(`/${user.role}/dashboard`);
+            return res.redirect(`/usr/388/${user.role}/dashboard`);
         } else {
             req.flash('error', 'Invalid username or password.');
             return redirectLogin(res);
