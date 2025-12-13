@@ -1,3 +1,6 @@
+require('dotenv').config({path:'.env'});
+console.log('BCRYPT_PEPPER loaded:', !!process.env.BCRYPT_PEPPER); // Debug 
+
 const express = require('express');
 const session = require('express-session');
 const flash = require('connect-flash');
@@ -5,7 +8,6 @@ const mysql = require('mysql2/promise');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const emailController = require('./controllers/email');
-require('dotenv').config();
 
 const app = express();
 app.set('view engine', 'ejs');
