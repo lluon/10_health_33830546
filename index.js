@@ -12,7 +12,7 @@ const emailController = require('./controllers/email');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const BASE_PATH = '/usr/388'; // <-- SOLID BASE PATH – all redirects use this
+const BASE_PATH = process.env.BASE_PATH || '/usr/338'; // Set your correct path here or in .env
 
 // ---------- App Setup ----------
 app.set('view engine', 'ejs');
@@ -27,10 +27,11 @@ app.use(session({
 }));
 app.use(flash());
 
-// Make flash messages available in views
+// Make flash messages and BASE_PATH available in all views
 app.use((req, res, next) => {
     res.locals.session = req.session;
     res.locals.messages = req.flash();
+    res.locals.BASE_PATH = BASE_PATH;
     next();
 });
 
@@ -71,15 +72,16 @@ app.get('/register', (req, res) => res.render('register'));
 
 app.post('/register', async (req, res) => {
     const { username, password, role, nhs_number, name, surname, dob, address, email } = req.body;
+
     if (!['patient', 'therapist'].includes(role)) {
         req.flash('error', 'Invalid role selection.');
-        return res.redirect('/register');
+        return res.redirect(`${BASE_PATH}/register`);
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/;
     if (!passwordRegex.test(password)) {
         req.flash('error', 'Password must be 8+ characters with lowercase, uppercase, number, and special char.');
-        return res.redirect('/register');
+        return res.redirect(`${BASE_PATH}/register`);
     }
 
     const PEPPER = process.env.BCRYPT_PEPPER || '';
@@ -99,7 +101,7 @@ app.post('/register', async (req, res) => {
         } else {
             req.flash('error', 'Error registering user.');
         }
-        res.redirect('/register');
+        res.redirect(`${BASE_PATH}/register`);
     }
 });
 
@@ -128,16 +130,16 @@ app.post('/login', async (req, res) => {
             req.session.role = user.role;
             req.session.username = username;
             req.flash('success', `Welcome back, ${username}!`);
-            return res.redirect(`/usr/388/${user.role}/dashboard`);
+            return res.redirect(`${BASE_PATH}/${user.role}/dashboard`);
         } else {
             req.flash('error', 'Invalid username or password.');
             return redirectLogin(res);
         }
     } catch (error) {
-    console.error('Login Error Details:', error.message, error.code, error.stack);
-    req.flash('error', 'Database error during login - please try again or contact admin.');
-    return redirectLogin(res);
-}
+        console.error('Login Error Details:', error.message, error.code, error.stack);
+        req.flash('error', 'Database error during login - please try again or contact admin.');
+        return redirectLogin(res);
+    }
 });
 
 app.get('/logout', (req, res) => {
@@ -172,7 +174,7 @@ app.post('/patient/illness', requireLogin, requireRole('patient'), async (req, r
     const { illness } = req.body;
     await pool.execute('UPDATE patients SET illness = ?, attended = FALSE WHERE id = ?', [illness, req.session.userId]);
     req.flash('success', 'Illness submitted, awaiting confirmation from your therapist.');
-    res.redirect('/patient/dashboard');
+    res.redirect(`${BASE_PATH}/patient/dashboard`);
 });
 
 app.get('/exercise/:id', requireLogin, requireRole('patient'), async (req, res) => {
@@ -197,7 +199,7 @@ app.get('/therapist/patient/:id', requireLogin, requireRole('therapist'), async 
     const [patientRows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [req.params.id]);
     if (patientRows.length === 0) {
         req.flash('error', 'Patient not found.');
-        return res.redirect('/therapist/dashboard');
+        return res.redirect(`${BASE_PATH}/therapist/dashboard`);
     }
     const patient = patientRows[0];
     const [exRows] = await pool.execute('SELECT * FROM exercises WHERE illustration_sequence IS NOT NULL AND description IS NOT NULL');
@@ -212,7 +214,7 @@ app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async 
 
     if (exercises.length === 0) {
         req.flash('error', 'Please select at least one exercise to assign.');
-        return res.redirect(`/therapist/patient/${patientId}`);
+        return res.redirect(`${BASE_PATH}/therapist/patient/${patientId}`);
     }
 
     try {
@@ -253,11 +255,11 @@ app.post('/therapist/assign/:id', requireLogin, requireRole('therapist'), async 
         await emailController.sendConfirmation(patientId);
 
         req.flash('success', `Successfully assigned ${exercises.length} exercise(s)!`);
-        res.redirect('/therapist/dashboard');
+        res.redirect(`${BASE_PATH}/therapist/dashboard`);
     } catch (err) {
         console.error('Assignment Error:', err);
         req.flash('error', `Failed to assign exercises: ${err.message}`);
-        res.redirect(`/therapist/patient/${patientId}`);
+        res.redirect(`${BASE_PATH}/therapist/patient/${patientId}`);
     }
 });
 
@@ -272,7 +274,7 @@ app.get('/admin/edit/:id', requireLogin, requireRole('admin'), async (req, res) 
     const patient = rows[0] || null;
     if (!patient) {
         req.flash('error', 'User not found.');
-        return res.redirect('/admin/dashboard');
+        return res.redirect(`${BASE_PATH}/admin/dashboard`);
     }
     res.render('admin_edit', { patient });
 });
@@ -284,17 +286,17 @@ app.post('/admin/edit/:id', requireLogin, requireRole('admin'), async (req, res)
         [name, surname, email, illness || null, req.params.id]
     );
     req.flash(result.affectedRows ? 'success' : 'error', result.affectedRows ? 'User updated.' : 'No changes.');
-    res.redirect('/admin/dashboard');
+    res.redirect(`${BASE_PATH}/admin/dashboard`);
 });
 
 app.post('/admin/delete/:id', requireLogin, requireRole('admin'), async (req, res) => {
     if (req.params.id == req.session.userId) {
         req.flash('error', 'You cannot deactivate your own account.');
-        return res.redirect('/admin/dashboard');
+        return res.redirect(`${BASE_PATH}/admin/dashboard`);
     }
     const [result] = await pool.execute('UPDATE patients SET role = "deactivated" WHERE id = ?', [req.params.id]);
     req.flash(result.affectedRows ? 'success' : 'error', result.affectedRows ? 'User deactivated.' : 'User not found.');
-    res.redirect('/admin/dashboard');
+    res.redirect(`${BASE_PATH}/admin/dashboard`);
 });
 
 // ---------- Start Server ----------
