@@ -134,10 +134,10 @@ app.post('/login', async (req, res) => {
             return redirectLogin(res);
         }
     } catch (error) {
-        console.error('Login Error:', error);
-        req.flash('error', 'An unexpected error occurred during login.');
-        return redirectLogin(res);
-    }
+    console.error('Login Error Details:', error.message, error.code, error.stack);
+    req.flash('error', 'Database error during login - please try again or contact admin.');
+    return redirectLogin(res);
+}
 });
 
 app.get('/logout', (req, res) => {
