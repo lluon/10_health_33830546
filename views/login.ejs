@@ -11,6 +11,7 @@
   <h1>NHS PhysioHUB</h1>
   <hr><br>
   <% if (messages.error) { %><p class="error"><%= messages.error %></p><% } %>
+  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
   <form method="POST" action="/login">
     <input type="text" name="username" placeholder="Username" required>
     <input type="password" name="password" placeholder="Password" required>
