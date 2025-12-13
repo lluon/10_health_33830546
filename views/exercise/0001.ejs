@@ -2,7 +2,7 @@
 <html>
     <head>
         <title><%= exercise.name %></title>
-        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="<%= BASE_PATH %>/style.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
         <hr><br>
         <% const params = JSON.parse(exercise.checklist); %>
 
-        <img src="/exercises/img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>" style="max-width: 300px;">
+        <img src="<%= BASE_PATH %>/exercises/img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>" style="max-width: 300px;">
         <H1><%= exercise.name %></H1>
         <br>
         <h2>Client`s aim</h2>
@@ -28,6 +28,6 @@
     <h2>Duration Achieved: <span id="time-display"></span></h2>
     <button id="start-timer">Start Recording</button>
         </div>
-    <script src="/js/timer.js"></script>
+    <script src="<%= BASE_PATH %>/js/timer.js"></script>
 </body>
 </html>

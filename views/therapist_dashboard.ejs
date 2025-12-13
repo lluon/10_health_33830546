@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Physiotherapist Dashboard</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="<%= BASE_PATH %>/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
     <hr>
     <br>
   <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
-  <form method="GET" action="/therapist/dashboard">
+  <form method="GET" action="<%= BASE_PATH %>/therapist/dashboard">
     <input type="text" name="search" placeholder="Search patients">
     <button type="submit">Search</button>
   </form>
@@ -25,10 +25,10 @@
         <td><%= p.nhs_number %></td>
         <td><%= p.illness %></td>
         <td><%= p.attended ? 'Yes' : 'No' %></td>
-        <td><a href="/therapist/patient/<%= p.id %>">View/Assign</a></td>
+        <td><a href="<%= BASE_PATH %>/therapist/patient/<%= p.id %>">View/Assign</a></td>
       </tr>
     <% }); %>
   </table>
   <br>
-  <a href="/">Home</a>
+  <a href="<%= BASE_PATH %>/">Home</a>
 </body>

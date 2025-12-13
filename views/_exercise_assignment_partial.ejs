@@ -2,7 +2,7 @@
     <hr>
     <h3><%= exercise.name %></h3>
     <div class="exercise-details">
-        <img src="/exercise/img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>" style="max-width: 200px; display: block; margin-bottom: 10px;">
+        <img src="<%= BASE_PATH %>/exercises/img/<%= exercise.illustration_sequence %>.jpg" alt="<%= exercise.name %>" style="max-width: 200px; display: block; margin-bottom: 10px;">
         <p><strong>Client's Aim:</strong> <%= exercise.aim || 'To be determined.' %></p>
         <p><strong>Instructions:</strong> <%= exercise.description %></p>
         

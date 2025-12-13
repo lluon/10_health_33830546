@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Register</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="<%= BASE_PATH%>/style.css">
  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
     <br>
   <% if (messages.error) { %><p class="error"><%= messages.error %></p><% } %>
   <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
-  <form method="POST" action="/register">
+  <form method="POST" action="<%= BASE_PATH%>/register">
     <input type="text" name="nhs_number" placeholder="NHS Number" required>
     <input type="text" name="name" placeholder="Name" required>
     <input type="text" name="surname" placeholder="Surname" required>
@@ -31,6 +31,6 @@
     <button type="submit">Register</button>
   </form>
   <br>
-  <a href="/">Home</a>
+  <a href="<%= BASE_PATH%>/">Home</a>
 </body>
 </html>

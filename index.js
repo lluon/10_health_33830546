@@ -1,5 +1,4 @@
-// index.js – NHS PhysioHUB (Goldsmiths deployment – solid BASE_PATH)
-require('dotenv').config({ path: '.env' });
+require('dotenv').config();
 console.log('BCRYPT_PEPPER loaded:', !!process.env.BCRYPT_PEPPER); // Debug
 
 const express = require('express');
@@ -11,13 +10,26 @@ const bcrypt = require('bcrypt');
 const emailController = require('./controllers/email');
 
 const app = express();
-const PORT = process.env.PORT || 8000;
-const BASE_PATH = process.env.BASE_PATH || '/usr/338'; // Set your correct path here or in .env
 
-// ---------- App Setup ----------
+//______________BASE_PATH setup_________________
+
+const BASE_PATH = process.env.BASE_PATH || '/usr/338';
+app.locals.BASE_PATH = BASE_PATH // in all ejs as <%= BASE_PATH %>
+
+//_____________App Setup________________________
+
 app.set('view engine', 'ejs');
+app.set ('views', path.join(__dirname,'views'));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+//_____________static file handler______________
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(BASE_PATH,express.static(path.join(__dirname,'public')));
+
+//_____________session and flash________________
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'secret',
@@ -35,7 +47,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// ---------- DB Pool ----------
+//________________DB pool___________________
+
 const pool = mysql.createPool({
     host: process.env.HEALTH_HOST,
     user: process.env.HEALTH_USER,
@@ -43,38 +56,46 @@ const pool = mysql.createPool({
     database: process.env.HEALTH_DATABASE
 });
 
-// ---------- Helper ----------
-const redirectLogin = (res) => res.redirect(`${BASE_PATH}/login`);
+//_______________helper____________________
 
-// ---------- Auth Middleware ----------
+const redirectLogin =(res) => res.redirect(`${BASE_PATH}/login`)
+
+//_____________Auth Middleware_____________
+
 function requireLogin(req, res, next) {
     if (!req.session.userId) {
         req.flash('error', 'Please log in to access this page.');
-        return redirectLogin(res);
+        return res.redirect(`${BASE_PATH}/login`)
     }
     next();
 }
 
-function requireRole(role) {
+function requireRole(allowedRole) {
     return (req, res, next) => {
-        if (req.session.role !== role) {
-            req.flash('error', 'Access denied.');
-            return redirectLogin(res);
+        if (req.session.role !== allowedRole) {
+            req.flash('error', 'Access denied: insufficient privileges.');
+            return res.redirect(`${BASE_PATH}/login`);
         }
         next();
     };
 }
 
-// ---------- Public & Auth Routes ----------
+//____________________Routes_____________
+
+//____________________PUBLIC_____________
+
 app.get('/', (req, res) => res.render('home'));
 app.get('/about', (req, res) => res.render('about'));
 app.get('/register', (req, res) => res.render('register'));
+
+
+//______________Registration_____________
 
 app.post('/register', async (req, res) => {
     const { username, password, role, nhs_number, name, surname, dob, address, email } = req.body;
 
     if (!['patient', 'therapist'].includes(role)) {
-        req.flash('error', 'Invalid role selection.');
+        req.flash('error', 'Invalid role.');
         return res.redirect(`${BASE_PATH}/register`);
     }
 
@@ -99,11 +120,13 @@ app.post('/register', async (req, res) => {
         if (err.code === 'ER_DUP_ENTRY') {
             req.flash('error', 'Username or NHS number already exists.');
         } else {
-            req.flash('error', 'Error registering user.');
+            req.flash('error', 'Registration failed. try again.');
         }
         res.redirect(`${BASE_PATH}/register`);
     }
 });
+
+//_____________login_logout_________________
 
 app.get('/login', (req, res) => res.render('login'));
 
@@ -112,53 +135,58 @@ app.post('/login', async (req, res) => {
     const PEPPER = process.env.BCRYPT_PEPPER || '';
 
     try {
-        const [rows] = await pool.execute('SELECT id, password, role FROM patients WHERE username = ?', [username]);
-        if (rows.length === 0) {
-            req.flash('error', 'Invalid username or password.');
-            return redirectLogin(res);
+        const [rows] = await pool.execute(
+            'SELECT id, password, role FROM patients WHERE username = ?', 
+            [username]
+        );
+
+        if (rows.length === 0 || rows[0].role === 'deactivated') {
+            req.flash('error', 'Invalid credential  or account deactivated.');
+            return res.redirect(`${BASE_PATH}/login`);
         }
 
         const user = rows[0];
-        if (user.role === 'deactivated') {
-            req.flash('error', 'Account is deactivated. Contact administrator.');
-            return redirectLogin(res);
-        }
+        const match = await bcrypt.compare(password + PEPPER,user.password)
 
-        const match = await bcrypt.compare(password + PEPPER, user.password);
         if (match) {
             req.session.userId = user.id;
+            req.session.username = user.username;
             req.session.role = user.role;
-            req.session.username = username;
-            req.flash('success', `Welcome back, ${username}!`);
+
+            req.flash('success', `Welcome back, ${user.username}!`);
             return res.redirect(`${BASE_PATH}/${user.role}/dashboard`);
         } else {
             req.flash('error', 'Invalid username or password.');
-            return redirectLogin(res);
+            return res.redirect(`${BASE_PATH}/login`);
         }
     } catch (error) {
         console.error('Login Error Details:', error.message, error.code, error.stack);
         req.flash('error', 'Database error during login - please try again or contact admin.');
-        return redirectLogin(res);
+        res.redirect(`${BASE_PATH}/login`);
     }
 });
 
 app.get('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) console.error('Logout error:', err);
-        redirectLogin(res);
+    req.session.destroy(() => {
+        res.redirect(`${BASE_PATH}/login`);
     });
 });
 
-// ---------- Patient Routes ----------
+// ___________Patient Routes___________
+
 app.get('/patient/dashboard', requireLogin, requireRole('patient'), async (req, res) => {
     const [patientRows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [req.session.userId]);
     const patient = patientRows[0];
+
     let exercises = [];
     let treatment = null;
 
     if (patient.attended) {
-        const [treatmentRows] = await pool.execute('SELECT * FROM ongoing_treatment WHERE nhs_number = ? ORDER BY id DESC LIMIT 1', [patient.nhs_number]);
-        if (treatmentRows.length) {
+        const [treatmentRows] = await pool.execute(
+            'SELECT * FROM ongoing_treatment WHERE nhs_number = ? ORDER BY id DESC LIMIT 1', 
+            [patient.nhs_number]
+        );
+        if (treatmentRows.length >0) {
             treatment = treatmentRows[0];
             const [exRows] = await pool.execute(
                 'SELECT e.*, te.order_num FROM exercises e JOIN treatment_exercise te ON e.id = te.exercise_id WHERE te.treatment_id = ? ORDER BY te.order_num',
@@ -173,19 +201,21 @@ app.get('/patient/dashboard', requireLogin, requireRole('patient'), async (req, 
 app.post('/patient/illness', requireLogin, requireRole('patient'), async (req, res) => {
     const { illness } = req.body;
     await pool.execute('UPDATE patients SET illness = ?, attended = FALSE WHERE id = ?', [illness, req.session.userId]);
-    req.flash('success', 'Illness submitted, awaiting confirmation from your therapist.');
+    req.flash('success', 'Illness descrition submitted.');
     res.redirect(`${BASE_PATH}/patient/dashboard`);
 });
 
 app.get('/exercise/:id', requireLogin, requireRole('patient'), async (req, res) => {
     const [rows] = await pool.execute('SELECT * FROM exercises WHERE id = ?', [req.params.id]);
     if (rows.length === 0) return res.status(404).send('Exercise not found');
+
     const exercise = rows[0];
     const viewName = `exercise/${exercise.illustration_sequence}`;
     res.render(viewName, { exercise });
 });
 
-// ---------- Therapist Routes ----------
+//____________Therapist Routes___________
+
 app.get('/therapist/dashboard', requireLogin, requireRole('therapist'), async (req, res) => {
     const query = req.query.search || '';
     const [rows] = await pool.execute(
@@ -299,8 +329,11 @@ app.post('/admin/delete/:id', requireLogin, requireRole('admin'), async (req, re
     res.redirect(`${BASE_PATH}/admin/dashboard`);
 });
 
-// ---------- Start Server ----------
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`NHS PhysioHUB running at https://www.doc.gold.ac.uk${BASE_PATH}`);
-    console.log(`Local access: http://localhost:${PORT}`);
+// ___________Start Server___________
+const PORT=8000;
+
+app.listen(PORT, 'localhost', () => {
+    console.log(`NHS PhysioHUB running!`);
+    console.log(`> external: https://www.doc.gold.ac.uk${BASE_PATH}`);
+    console.log(`> local: http://localhost:${PORT}${BASE_PATH}`);
 });

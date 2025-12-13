@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Patient Dashboard</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="<%= BASE_PATH %>/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -39,9 +39,9 @@
         %>
         <li>
           <br>
-                    <a href="/exercise/<%= ex.id %>"><strong><%= ex.name %></strong></a>
+                    <a href="<%= BASE_PATH %>/exercise/<%= ex.id %>"><strong><%= ex.name %></strong></a>
           <br>
-                    <img src="/exercises/img/<%= ex.illustration_sequence %>.jpg" alt="<%= ex.name %>" style="max-width: 150px; display: block; margin: 5px 0;">
+                    <img src="<%= BASE_PATH %>/exercises/img/<%= ex.illustration_sequence %>.jpg" alt="<%= ex.name %>" style="max-width: 150px; display: block; margin: 5px 0;">
           <p>Instructions: <%= ex.description %></p>
           <br>
           <h4>Prescription Details:</h4>
@@ -60,6 +60,6 @@
     <p>Your current status is ready for treatment, but no exercises have been assigned by your physiotherapist yet.</p>
   <% } %>
   <br>
-  <a href="/">Home</a>
+  <a href="<%= BASE_PATH %>/">Home</a>
 </body>
 </html>
