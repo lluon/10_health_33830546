@@ -10,16 +10,25 @@
 <body>
   <h1>NHS PhysioHUB</h1>
   <hr>
-  <h2>Edit User: <%= patient.name %> <%= patient.surname %></h1>
+
+  <h2>Edit User: <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h2>
   <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
-  <form method="POST" action="/admin/edit/<%= patient.id %>">
-    <input type="text" name="name" value="<%= patient.name %>" required>
-    <input type="text" name="surname" value="<%= patient.surname %>" required>
-    <input type="email" name="email" value="<%= patient.email %>" required>
-    <textarea name="illness"><%= patient.illness %></textarea>
+  <% if (messages.error) { %><p class="error"><%= messages.error %></p><% } %>
+
+
+  <form method="POST" action="<%= BASE_PATH %>/admin/edit/<%= patient.id %>">
+
+    <input type="text" name="name" value="<%= escapeHTML(patient.name) %>" required>
+    <input type="text" name="surname" value="<%= escapeHTML(patient.surname) %>" required>
+    <input type="email" name="email" value="<%= escapeHTML(patient.email) %>" required>
+
+    <textarea name="illness"><%= escapeHTML(patient.illness) %></textarea>
     <button type="submit">Update</button>
   </form>
   <br>
-  <a href="<%= BASE_PATH %>/admin/dashboard">Back</a>
+
+  <a href="<%= BASE_PATH %>/admin/dashboard">Back to Dashboard</a>
+
+  <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
 </body>
 </html>

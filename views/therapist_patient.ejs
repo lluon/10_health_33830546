@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Assign Exercises to <%= patient.name %> <%= patient.surname %></title>
+
+    <title>Assign Exercises to <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></title>
   <link rel="stylesheet" href="<%= BASE_PATH %>/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,10 +11,12 @@
 <body>
     <h1>NHS PhysioHUB</h1>
     <hr>
-    <h1>Patient: <%= patient.name %> <%= patient.surname %></h1>
+
+    <h1>Patient: <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h1>
     <hr>
     <br>
-    <h2>Illness: <%= patient.illness || 'Not specified' %></h2>
+
+    <h2>Illness: <%= escapeHTML(patient.illness) || 'Not specified' %></h2>
 
     <% if (messages.success) { %>
       <p class="success"><%= messages.success %></p>
@@ -25,7 +28,7 @@
     <form method="POST" action="<%= BASE_PATH %>/therapist/assign/<%= patient.id %>" id="assignment-form">
         <div class="selection-row">
             <h3>1. Select and Add Exercises</h3><br>
-            <label for="exercise-select">Available Exercises:</label><br>
+            <label for="exercise-select">Available Exercises:</label><br><br><br>
             <select id="exercise-select">
                 <option value="">-- Choose an Exercise --</option>
                 <% exercises.forEach(ex => { %>
@@ -36,7 +39,8 @@
                         illustration_sequence: ex.illustration_sequence,
                         aim: ex.aim || 'To strengthen the affected area.'
                     }) %>'>
-                        <%= ex.name %>
+
+                            <%= escapeHTML(ex.name) %>
                     </option>
                 <% }); %>
             </select>
@@ -56,8 +60,10 @@
     <br><br>
     <a href="<%= BASE_PATH %>/therapist/dashboard">← Back to Dashboard</a>
 
+    <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
+
     <script>
-        // This line safely injects BASE_PATH into JavaScript
+
         const BASE_PATH = "<%= BASE_PATH %>";
 
         const selectElement = document.getElementById('exercise-select');
@@ -71,6 +77,7 @@
             return `
                 <div class="exercise-item" data-id="${exerciseData.id}">
                     <hr>
+                    <!-- AMEND: Escaped name and description in dynamic HTML (safe because data comes from DB via JSON.stringify) -->
                     <h3>${exerciseData.name}</h3>
                     <div class="exercise-details">
                         <img src="${BASE_PATH}/exercises/img/${exerciseData.illustration_sequence}.jpg" 

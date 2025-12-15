@@ -8,46 +8,48 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>NHS PhysioHUB</h1>
-  <hr>
-  <h2>Admin Dashboard - Supervise All Users</h2>
-  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
-  <table>
-    <tr>
-      <th>ID</th>
-      <th>Username</th>
-      <th>Role</th>
-      <th>Name</th>
-      <th>NHS Number</th>
-      <th>Email</th>
-      <th>Illness</th>
-      <th>Attended</th>
-      <th>Actions</th>
-    </tr>
-    <% patients.forEach(p => { %>
-      <tr>
-        <td><%= p.id %></td>
-        <td><%= p.username %></td>
-        <td><%= p.role %></td>
-        <td><%= p.name %> <%= p.surname %></td>
-        <td><%= p.nhs_number %></td>
-        <td><%= p.email %></td>
-        <td><%= p.illness ? p.illness.substring(0, 50) + '...' : 'None' %></td>
-        <td><%= p.attended ? 'Yes' : 'No' %></td>
-        <td>
-          <a href="<%= BASE_PATH %>/admin/edit/<%= p.id %>" class="action-btn edit-btn">Edit</a>
+    <h1>NHS PhysioHUB - Admin Dashboard</h1>
+    <hr>
+    <br>
+    <% if (messages.success) { %>
+      <p class="success"><%= messages.success %></p>
+    <% } %>
+    <% if (messages.error) { %>
+      <p class="error"><%= messages.error %></p>
+    <% } %>
 
-          <form method="POST" 
-          	action="<%= BASE_PATH %>/admin/delete/<%= p.id %>" 
-          	style="display: inline-block; margin-left: 5px;" 
-          	onsubmit="return confirm('WARNING: Are you sure you want to set <%= p.username %> to INACTIVE? They will not be able to log in.');">
-          	<button type="submit" class="action-btn delete-btn">Set Inactive</button>
-          </form>
-        </td>
-      </tr>
-  <% }); %>
-</table>
-<br>
-<a href="<%= BASE_PATH %>/">Home</a>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Illness</th>
+            <th>Actions</th>
+        </tr>
+        <% patients.forEach(p => { %>
+          <tr>
+
+            <td><%= escapeHTML(p.name) %> <%= escapeHTML(p.surname) %></td>
+
+            <td><%= escapeHTML(p.email) %></td>
+
+            <td><%= escapeHTML(p.role) %></td>
+
+            <td><%= escapeHTML(p.illness) || 'None' %></td>
+            <td>
+
+              <a href="<%= BASE_PATH %>/admin/edit/<%= p.id %>" class="action-btn edit-btn">Edit</a>
+
+              <form method="POST" action="<%= BASE_PATH %>/admin/delete/<%= p.id %>" style="display:inline;">
+                <button type="submit" class="action-btn delete-btn" onclick="return confirm('Deactivate this user?')">Deactivate</button>
+              </form>
+            </td>
+          </tr>
+        <% }); %>
+    </table>
+    <br>
+    <a href="<%= BASE_PATH %>/">Home</a>
+
+    <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
 </body>
 </html>
