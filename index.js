@@ -375,8 +375,8 @@ app.post('/admin/delete/:id', requireLogin, requireRole('admin'), async (req, re
 
 // ___________Start Server___________
 
-const PORT = 8000;
-app.listen(PORT, 'localhost', () => {
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, '0.0.0.0', () => { //avaliable everywhere
     console.log(`NHS PhysioHUB running!`);
     console.log(`> Local: http://localhost:${PORT}${BASE_PATH}`);
     console.log(`> External: https://www.doc.gold.ac.uk${BASE_PATH}`);
