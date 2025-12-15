@@ -25,7 +25,7 @@ function startTimer() {
     
     // START logic
     timerInterval = setInterval(updateStopwatch, 1000);
-    startButton.textContent = "Recording...";
+    startButton.textContent = "Recording";
     startButton.disabled = true; // Disable Start button while running
     isRunning = true;
 }
@@ -35,7 +35,7 @@ function resetTimer() {
     timeElapsed = 0; // Reset to zero for a new attempt
     isRunning = false;
     timeDisplay.textContent = formatTime(timeElapsed);
-    startButton.textContent = "Start Recording"; // Button text reflects the recording purpose
+    startButton.textContent = "Start"; // Button text reflects the recording purpose
     startButton.disabled = false; // Enable Start button
 }
 
@@ -45,7 +45,7 @@ function resetTimer() {
 const timerWidget = document.getElementById('timer-widget');
 const resetButton = document.createElement('button');
 resetButton.textContent = "Stop / Reset"; // Renamed to better reflect action
-resetButton.id = "reset-timer";
+resetButton.id = "stop";
 timerWidget.appendChild(resetButton);
 
 // Event Listeners
