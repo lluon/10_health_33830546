@@ -15,7 +15,6 @@
       <h1 class="header-title-text">PhysioHUB</h1>
     </div>
     <hr>
-    <div class="container">
 
         <h2>Patient:<br></h2> 
         <h1><%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h1>
@@ -64,7 +63,7 @@
             <button type="submit">Assign Exercises & Send Confirmation</button>
         </form>
 
-        <br><br>
+        <br>
         <a href="<%= BASE_PATH %>/therapist/dashboard">← Back to Dashboard</a>
 
         <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
@@ -86,7 +85,7 @@
                     <hr>
                     <h3>${exerciseData.name}</h3>
                     <div class="exercise-details" style="display: inline-block; text-align: center; max-width: 400px;">
-                        <img src="<%= BASE_PATH %>/exercises/img/${exerciseData.illustration_sequence}.jpg" 
+                        <img src="../exercises/img/${exerciseData.illustration_sequence}.jpg" 
                              alt="${exerciseData.name}" 
                              class="exercise-preview-img"
                              style="max-width: 300px; height: auto; display: block; margin: 0 auto 20px auto; background: white;">
