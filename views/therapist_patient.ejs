@@ -85,7 +85,7 @@
                         <img src="<%= BASE_PATH %>/exercises/img/${exerciseData.illustration_sequence}.jpg" 
                              alt="${exerciseData.name}" 
                              class="exercise-preview-img"
-                             style="max-width: 200px; height: auto; display: block; margin: 0 auto 20px auto;">
+                             style="max-width: 300px; height: auto; display: block; margin: 0 auto 20px auto;">
 
                         <p><strong>Client's Aim:</strong> ${exerciseData.aim || 'To be determined.'}</p>
                         <p><strong>Instructions:</strong> ${exerciseData.description}</p>
@@ -114,7 +114,6 @@
                         <input type="hidden" name="exercises[${exerciseData.id}][name]" value="${exerciseData.name}">
                         <input type="hidden" name="exercises[${exerciseData.id}][illustration_sequence]" value="${exerciseData.illustration_sequence}">
 
-                        <!-- AMEND: Centered and styled Remove button -->
                         <button type="button" class="remove-exercise-btn" data-id="${exerciseData.id}" 
                                 style="margin-top: 20px; padding: 12px 30px; background: #dc3545; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold;">
                             Remove
