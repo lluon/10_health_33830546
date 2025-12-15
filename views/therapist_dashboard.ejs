@@ -9,7 +9,11 @@
 
 </head>
 <body>
-    <h1>NHS PhysioHUB</h1>
+  <div class="container">
+    <div class="header-title">
+      <img src="<%= BASE_PATH %>/exercises/img/nhs.svg" alt="NHS Logo" class="header-logo">
+      <h1 class="header-title-text">PhysioHUB</h1>
+    </div>
     <hr>
     <br>
   <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>

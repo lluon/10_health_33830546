@@ -9,9 +9,13 @@
 </head>
 <body>
   <div class="container">
-    <h1>NHS PhysioHUB</h1>
+    <div class="header-title">
+      <img src="<%= BASE_PATH %>/exercises/img/nhs.svg" alt="NHS Logo" class="header-logo">
+      <h1 class="header-title-text">PhysioHUB</h1>
+    </div>
     <hr>
-    <h2>Patient Dashboard - <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h2>
+    <h1>Patient Dashboard</h1> 
+    <h2><%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h2>
     <br><hr>
 
     <% if (messages.success) { %>

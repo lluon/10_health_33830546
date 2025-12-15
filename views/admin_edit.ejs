@@ -8,13 +8,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>NHS PhysioHUB</h1>
-  <hr>
+    <div class="header-title">
+      <img src="<%= BASE_PATH %>/exercises/img/nhs.svg" alt="NHS Logo" class="header-logo">
+      <h1 class="header-title-text">PhysioHUB</h1>
+    </div>
+    <hr>
 
-
-
-
-    <h2>Edit User: <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h2>
+    <h1>Edit User:</h1>
+    <h2><%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h2>
     <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
     <% if (messages.error) { %><p class="error"><%= messages.error %></p><% } %>
 
