@@ -54,4 +54,4 @@ resetButton.addEventListener('click', resetTimer);
 
 // Initial setup: Display 0:00 immediately.
 timeDisplay.textContent = formatTime(timeElapsed);
-startButton.textContent = "Start Recording"; // Set initial button text
+startButton.textContent = "REC"; // Set initial button text
