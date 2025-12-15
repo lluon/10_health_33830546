@@ -10,37 +10,32 @@ const pool = mysql.createPool({
 
 // Model functions
 module.exports = {
+  // Get a patient by ID
   getPatientById: async (id) => {
     const [rows] = await pool.execute('SELECT * FROM patients WHERE id = ?', [id]);
     return rows[0];
   },
+
+  // Get all exercises (used in therapist assignment page)
   getExercises: async () => {
-    const [rows] = await pool.execute('SELECT * FROM exercises');
+    const [rows] = await pool.execute('SELECT * FROM exercises ORDER BY name');
     return rows;
   },
-  
+
   // Update Patient/User Data (For Admin Edit POST)
   updatePatient: async (id, name, surname, email, illness) => {
     const sql = `
-      UPDATE patients 
+      UPDATE patients
       SET name = ?, surname = ?, email = ?, illness = ?
       WHERE id = ?
     `;
-    const [result] = await pool.execute(sql, [name, surname, email, illness, id]);
+    const [result] = await pool.execute(sql, [name, surname, email, illness || null, id]);
     return result;
   },
 
-  // Delete Patient/User (For Admin Delete POST) ---
+  // Delete/Deactivate Patient/User (For Admin Delete POST)
   deletePatientById: async (id) => {
-
-    const [result] = await pool.execute('DELETE FROM patients WHERE id = ?', [id]);
+    const [result] = await pool.execute('UPDATE patients SET role = "deactivated" WHERE id = ?', [id]);
     return result;
-  },
-
-  // --- Placeholder for Therapist Assignment ---
-  updatePatientAssignment: async (id, assignedExercisesJson) => {
-      const sql = 'UPDATE patients SET assigned_exercises = ?, attended = 1 WHERE id = ?';
-      const [result] = await pool.execute(sql, [assignedExercisesJson, id]);
-      return result;
   }
 };

@@ -10,46 +10,44 @@
 <body>
     <h1>NHS PhysioHUB - Admin Dashboard</h1>
     <hr>
-    <br>
-    <% if (messages.success) { %>
-      <p class="success"><%= messages.success %></p>
-    <% } %>
-    <% if (messages.error) { %>
-      <p class="error"><%= messages.error %></p>
-    <% } %>
 
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Illness</th>
-            <th>Actions</th>
-        </tr>
-        <% patients.forEach(p => { %>
+
+    <div class="container">
+      <br>
+      <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
+      <% if (messages.error) { %><p class="error"><%= messages.error %></p><% } %>
+
+      <table>
           <tr>
-
-            <td><%= escapeHTML(p.name) %> <%= escapeHTML(p.surname) %></td>
-
-            <td><%= escapeHTML(p.email) %></td>
-
-            <td><%= escapeHTML(p.role) %></td>
-
-            <td><%= escapeHTML(p.illness) || 'None' %></td>
-            <td>
-
-              <a href="<%= BASE_PATH %>/admin/edit/<%= p.id %>" class="action-btn edit-btn">Edit</a>
-
-              <form method="POST" action="<%= BASE_PATH %>/admin/delete/<%= p.id %>" style="display:inline;">
-                <button type="submit" class="action-btn delete-btn" onclick="return confirm('Deactivate this user?')">Deactivate</button>
-              </form>
-            </td>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Illness</th>
+              <th>Actions</th>
           </tr>
-        <% }); %>
-    </table>
-    <br>
-    <a href="<%= BASE_PATH %>/">Home</a>
+          <% patients.forEach(p => { %>
+            <tr>
 
-    <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
+              <td><%= escapeHTML(p.name) %> <%= escapeHTML(p.surname) %></td>
+
+              <td><%= escapeHTML(p.email) %></td>
+              <td><%= escapeHTML(p.role) %></td>
+
+              <td><%= escapeHTML(p.illness) || 'None' %></td>
+              <td>
+
+                <a href="<%= BASE_PATH %>/admin/edit/<%= p.id %>" class="action-btn edit-btn">Edit</a>
+                <form method="POST" action="<%= BASE_PATH %>/admin/delete/<%= p.id %>" style="display:inline;">
+                  <button type="submit" class="action-btn delete-btn" onclick="return confirm('Deactivate this user?')">Deactivate</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+      </table>
+      <br>
+      <a href="<%= BASE_PATH %>/">Home</a>
+
+      <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
+    </div>
 </body>
 </html>

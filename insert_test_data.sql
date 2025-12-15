@@ -1,18 +1,17 @@
 USE health;
 
--- Delete any existing test data
--- NOTE: Foreign key constraints mean you must delete from child tables first.
 DELETE FROM treatment_exercise;
 DELETE FROM ongoing_treatment;
 DELETE FROM exercises;
 DELETE FROM patients;
 
--- Insert admin user
--- The table has 12 columns. We list 9 and let the remaining (illness, attended) default to NULL/FALSE.
+-- Admin account
+-- Username: gold
+-- Password: smiths123ABC$
 INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address)
 VALUES (
     'gold',
-    '$2b$12$/HeLfgkQbxjGDJN5HepP7eY3Mb5YbnGk/Fw35Hs9j.VTozlE.2iUu', -- Hashed 'smiths123ABC$'
+    '$2b$12$/HeLfgkQbxjGDJN5HepP7eY3Mb5YbnGk/Fw35Hs9j.VTozlE.2iUu',
     'admin',
     'gold',
     'smiths',
@@ -22,11 +21,13 @@ VALUES (
     '1 Admin Way'
 );
 
--- Insert therapist user
+-- Therapist account
+-- Username: dave_rowland
+-- Password: am@R0n3_VP
 INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address)
 VALUES (
     'dave_rowland',
-    '$2b$12$7vYelaQQk3DISwd54yLmveuluiUQktr3.c21G8rkOTvq7KPm3XiXW', -- Hashed 'am@R0n3_VP'
+    '$2b$12$7vYelaQQk3DISwd54yLmveuluiUQktr3.c21G8rkOTvq7KPm3XiXW',
     'therapist',
     'Dave',
     'Rowland',
@@ -36,12 +37,13 @@ VALUES (
     '2 Therapy Lane'
 );
 
--- Insert patient user
--- This user is provided an initial illness, so we must list the 'illness' column.
+-- Patient account (with initial illness)
+-- Username: sandroverrone
+-- Password: L00k@tth@t
 INSERT INTO patients (username, password, role, name, surname, email, nhs_number, dob, address, illness)
 VALUES (
     'sandroverrone',
-    '$2b$12$72t8LaarC/EKCNWIrEaHjuVwjZlOER.uP92mA14GsIa7cfv9KoJE.', -- Hashed 'L00k@tth@t'
+    '$2b$12$72t8LaarC/EKCNWIrEaHjuVwjZlOER.uP92mA14GsIa7cfv9KoJE.',
     'patient',
     'Sandro',
     'Verrone',
@@ -52,8 +54,7 @@ VALUES (
     'lower left leg pain'
 );
 
--- Insert all six specific exercises
--- NOTE: The 'checklist' column is used here to store the default prescription data
+-- Six exercises with default prescription settings
 INSERT INTO exercises (name, description, illustration_sequence, timer, checklist)
 VALUES
 ('Lunges sliding back and forwards', 'Position yourself standing. Practice sliding back and forwards with your unaffected leg.', '0001', 0, '{"duration": 5, "reps": 10, "perWeek": 3}'),

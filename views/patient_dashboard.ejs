@@ -10,66 +10,97 @@
 <body>
   <h1>NHS PhysioHUB</h1>
   <hr>
+  <div class="container">
+    <h2>Patient Dashboard - <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h2>
+    <br><hr>
 
-  <h2>Patient Dashboard - <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h2><br><hr>
-  <% if (messages.success) { %><p class="success"><%= messages.success %></p><% } %>
+    <% if (messages.success) { %>
+      <p class="success"><%= messages.success %></p>
+    <% } %>
+    <% if (messages.error) { %>
+      <p class="error"><%= messages.error %></p>
+    <% } %>
 
-  <% if (!patient.illness) { %>
-    <h2>Submit Your Illness Description</h2>
-    <form method="POST" action="<%= BASE_PATH %>/patient/illness">
-      <textarea name="illness" placeholder="Describe your illness" required></textarea>
-      <button type="submit">Submit</button>
-    </form>
-  <% } else if (!patient.attended) { %>
-    <h2>Status: Awaiting Appointment</h2>
-    <p>Waiting for your physiotherapist to assign a treatment plan.</p><br>
-  <% } else if (treatment) { %>
-    <h2>Ongoing Treatment</h2><br>
+    <!-- Illness submission form (shown only if no illness recorded yet) -->
+    <% if (!patient.illness) { %>
+      <h2>Submit Your Illness Description</h2>
+      <form method="POST" action="<%= BASE_PATH %>/patient/illness">
+        <textarea name="illness" placeholder="Describe your illness or symptoms in detail" required style="height: 150px;"></textarea>
+        <button type="submit">Submit</button>
+      </form>
+      <br><hr><br>
+    <% } %>
 
-    <p>Timing: <%= escapeHTML(treatment.timing) %></p><br>
-    <p>Progression: <%= escapeHTML(treatment.progression) %></p><br>
-    <h3>Exercises</h3>
-    <ul>
-      <% exercises.forEach(ex => { 
-            let params = {};
-            try { 
-                params = JSON.parse(ex.checklist); 
-            } catch (e) { 
-                console.error("Could not parse checklist for exercise:", ex.name, e);
-            }
-        %>
-        <li>
-          <br>
-          <a href="<%= BASE_PATH %>/exercise/<%= ex.id %>"><strong><%= escapeHTML(ex.name) %></strong></a><br>
-          <!-- AMEND: Escaped alt text -->
-          <img src="<%= BASE_PATH %>/exercises/img/<%= ex.illustration_sequence %>.jpg" 
-               alt="<%= escapeHTML(ex.name) %>" 
-               style="max-width: 150px; display: block; margin: 5px 0;">
+    <!-- Show submitted illness -->
+    <% if (patient.illness) { %>
+      <p><strong>Your Reported Condition:</strong><br>
+         <%= escapeHTML(patient.illness) %></p>
+      <br><hr><br>
+    <% } %>
 
-          <p>Instructions: <%= escapeHTML(ex.description) %></p>
-          <br>
-          <h4>Prescription Details:</h4>
-          <p>
-            <strong>Movement/Duration:</strong> <%= params.duration || 'N/A' %><br>
-            <strong>Repetition/Sets:</strong> <%= params.reps || 'N/A' %><br>
-            <strong>Weekly Sessions:</strong> <%= params.perWeek || 'N/A' %>
-          </p>
-        </li>
-      <% }); %>
-    </ul>
-    <br>
-  <% } else { %>
-    <p>Your current status is ready for treatment, but no exercises have been assigned by your physiotherapist yet.</p>
-  <% } %>
+    <!-- Awaiting treatment assignment -->
+    <% if (patient.illness && !patient.attended) { %>
+      <h2>Status: Awaiting Treatment Plan</h2>
+      <p>Your description has been submitted. Please wait while your physiotherapist reviews it and assigns a personalised treatment plan.</p>
+      <br><hr><br>
+    <% } %>
 
+    <!-- Active treatment plan -->
+    <% if (treatment) { %>
+      <h2>Ongoing Treatment Plan</h2>
+      <br>
+      <p><strong>Timing:</strong> <%= escapeHTML(treatment.timing) %></p>
+      <p><strong>Progression Notes:</strong> <%= escapeHTML(treatment.progression) %></p>
+      <br><hr><br>
 
-  <% if (patient.illness) { %>
-    <p><strong>Your Illness:</strong> <%= escapeHTML(patient.illness) %></p>
-  <% } %>
+      <h3>Your Prescribed Exercises</h3>
+      <% if (exercises.length === 0) { %>
+        <p>No exercises assigned yet.</p>
+      <% } else { %>
+        <ul style="list-style: none; padding: 0;">
+          <% exercises.forEach(ex => { %>
+            <% 
+              let params = {};
+              try {
+                if (ex.custom_checklist) {
+                  params = JSON.parse(ex.custom_checklist);
+                } else {
+                  params = JSON.parse(ex.checklist || '{"duration": "N/A", "reps": "N/A", "perWeek": "N/A"}');
+                }
+              } catch (e) {
+                console.error("Failed to parse checklist for exercise:", ex.name);
+                params = { duration: "N/A", reps: "N/A", perWeek: "N/A" };
+              }
+            %>
+            <li style="text-align: center; margin-bottom: 50px; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+              <a href="<%= BASE_PATH %>/exercise/<%= ex.id %>">
+                <strong><%= escapeHTML(ex.name) %></strong>
+              </a>
+              <br><br>
+              <img src="<%= BASE_PATH %>/exercises/img/<%= ex.illustration_sequence %>.jpg"
+                   alt="<%= escapeHTML(ex.name) %>"
+                   style="max-width: 200px; display: block; margin: 20px auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+              <p><strong>Instructions:</strong><br><%= escapeHTML(ex.description) %></p>
+              <br>
+              <h4>Prescription Details</h4>
+              <p>
+                <strong>Duration per repetition:</strong> <%= params.duration %> seconds<br>
+                <strong>Repetitions/Sets:</strong> <%= params.reps %><br>
+                <strong>Weekly Sessions:</strong> <%= params.perWeek %>
+              </p>
+              <br>
+              <a href="<%= BASE_PATH %>/exercise/<%= ex.id %>" class="action-btn" style="background: #007bff; display: inline-block;">Start Exercise</a>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    <% } else if (patient.attended && !treatment) { %>
+      <p>Your treatment plan is ready, but no exercises have been assigned yet. Please check back later.</p>
+    <% } %>
 
-  <br>
-  <a href="<%= BASE_PATH %>/">Home</a>
-
-  <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
+    <br><br><hr><br>
+    <a href="<%= BASE_PATH %>/">Home</a>
+    <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
+  </div>
 </body>
 </html>

@@ -70,7 +70,7 @@ input::placeholder, textarea::placeholder {
   color: #666;
 }
 
-/* Bottoni principali */
+/* buttons */
 button, .action-btn {
   padding: 16px 30px;
   font-size: 1.2rem;
@@ -93,7 +93,7 @@ button[type="submit"]:hover {
   transform: translateY(-2px);
 }
 
-/* Link come bottoni (Home, About, ecc.) */
+/* Link as button (Home, About, ecc.) */
 a:link, a:visited {
   display: inline-block;
   background: white;
@@ -112,7 +112,7 @@ a:hover {
   transform: translateY(-2px);
 }
 
-/* Messaggi flash (error/success) */
+/* flash messages (error/success) */
 .error, .success {
   padding: 16px 25px;
   border-radius: 12px;
@@ -129,7 +129,7 @@ a:hover {
   color: #4F8A10;
 }
 
-/* Tabella (admin dashboard) */
+/* table (admin dashboard) */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -195,14 +195,15 @@ tr:nth-child(even) {
   }
 }
 
-/* theapist assignment */
+/* therapist assignment */
 .exercise-details p {
    margin-top: 20px; 
    margin-bottom: 20px; 
   }
 
 .exercise-details img {
-  padding: 5px; margin-top: 10px;
+  padding: 5px; 
+  margin-top: 10px;
 }
 
 .selection-row {
@@ -216,9 +217,8 @@ tr:nth-child(even) {
 }
 
 .exercise-item {
-  padding: 30 px;
-  margin-bottom:
-  30px;
+  padding: 30px;
+  margin-bottom: 30px;
 }
 
 .exercise-details label {

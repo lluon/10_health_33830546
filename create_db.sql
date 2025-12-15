@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS treatment_exercise (
     treatment_id INT,
     exercise_id INT,
     order_num INT,
+    custom_checklist TEXT NULL,                    -- Required for custom prescriptions
     FOREIGN KEY (treatment_id) REFERENCES ongoing_treatment(id),
     FOREIGN KEY (exercise_id) REFERENCES exercises(id)
 );

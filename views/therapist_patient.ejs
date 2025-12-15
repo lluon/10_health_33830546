@@ -12,58 +12,61 @@
     <h1>NHS PhysioHUB</h1>
     <hr>
 
-    <h1>Patient: <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h1>
-    <hr>
-    <br>
 
-    <h2>Illness: <%= escapeHTML(patient.illness) || 'Not specified' %></h2>
+    <div class="container">
 
-    <% if (messages.success) { %>
-      <p class="success"><%= messages.success %></p>
-    <% } %>
-    <% if (messages.error) { %>
-      <p class="error"><%= messages.error %></p>
-    <% } %>
+        <h1>Patient: <%= escapeHTML(patient.name) %> <%= escapeHTML(patient.surname) %></h1>
+        <hr>
+        <br>
+        <h2>Illness: <%= escapeHTML(patient.illness) || 'Not specified' %></h2>
 
-    <form method="POST" action="<%= BASE_PATH %>/therapist/assign/<%= patient.id %>" id="assignment-form">
-        <div class="selection-row">
-            <h3>1. Select and Add Exercises</h3><br>
-            <label for="exercise-select">Available Exercises:</label><br><br><br>
-            <select id="exercise-select">
-                <option value="">-- Choose an Exercise --</option>
-                <% exercises.forEach(ex => { %>
-                    <option value='<%= JSON.stringify({
-                        id: ex.id,
-                        name: ex.name,
-                        description: ex.description,
-                        illustration_sequence: ex.illustration_sequence,
-                        aim: ex.aim || 'To strengthen the affected area.'
-                    }) %>'>
+        <% if (messages.success) { %>
+          <p class="success"><%= messages.success %></p>
+        <% } %>
+        <% if (messages.error) { %>
+          <p class="error"><%= messages.error %></p>
+        <% } %>
 
-                            <%= escapeHTML(ex.name) %>
-                    </option>
-                <% }); %>
-            </select>
-            <br><br>
-            <button type="button" id="add-exercise-btn">Add Exercise</button>
-        </div>
 
-        <h3>2. Configure and Prescribe</h3><br>
-        <div id="prescribed-exercises">
-            <p id="no-exercises-message">No exercises assigned yet. Please select one above.</p>
-        </div>
+        <form method="POST" action="<%= BASE_PATH %>/therapist/assign/<%= patient.id %>" id="assignment-form">
+            <div class="selection-row">
+                <h3>1. Select and Add Exercises</h3><br>
+                <label for="exercise-select">Available Exercises:</label><br><br>
+                <select id="exercise-select">
+                    <option value="">-- Choose an Exercise --</option>
+                    <% exercises.forEach(ex => { %>
+                        <option value='<%= JSON.stringify({
+                            id: ex.id,
+                            name: ex.name,
+                            description: ex.description,
+                            illustration_sequence: ex.illustration_sequence,
+                            aim: ex.aim || 'To strengthen the affected area.'
+                        }) %>'>
 
-        <hr><br><br>
-        <button type="submit">Assign Exercises & Send Confirmation</button>
-    </form>
+                    <%= escapeHTML(ex.name) %>
+                        </option>
+                    <% }); %>
+                </select>
+                <br><br>
+                <button type="button" id="add-exercise-btn">Add Exercise</button>
+            </div>
 
-    <br><br>
-    <a href="<%= BASE_PATH %>/therapist/dashboard">← Back to Dashboard</a>
+            <h3>2. Configure and Prescribe</h3><br>
+            <div id="prescribed-exercises">
+                <p id="no-exercises-message">No exercises assigned yet. Please select one above.</p>
+            </div>
 
-    <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
+            <hr><br><br>
+            <button type="submit">Assign Exercises & Send Confirmation</button>
+        </form>
+
+        <br><br>
+        <a href="<%= BASE_PATH %>/therapist/dashboard">← Back to Dashboard</a>
+
+        <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
+    </div>
 
     <script>
-
         const BASE_PATH = "<%= BASE_PATH %>";
 
         const selectElement = document.getElementById('exercise-select');
@@ -75,38 +78,46 @@
 
         function renderExercisePartial(exerciseData) {
             return `
-                <div class="exercise-item" data-id="${exerciseData.id}">
+                <div class="exercise-item" data-id="${exerciseData.id}" style="text-align: center; margin-bottom: 50px;">
                     <hr>
-                    <!-- AMEND: Escaped name and description in dynamic HTML (safe because data comes from DB via JSON.stringify) -->
                     <h3>${exerciseData.name}</h3>
-                    <div class="exercise-details">
+                    <div class="exercise-details" style="display: inline-block; text-align: center; max-width: 400px;">
                         <img src="${BASE_PATH}/exercises/img/${exerciseData.illustration_sequence}.jpg" 
                              alt="${exerciseData.name}" 
-                             class="exercise-preview-img">
+                             class="exercise-preview-img"
+                             style="max-width: 200px; height: auto; display: block; margin: 0 auto 20px auto;">
 
                         <p><strong>Client's Aim:</strong> ${exerciseData.aim || 'To be determined.'}</p>
                         <p><strong>Instructions:</strong> ${exerciseData.description}</p>
-                        
-                        <label>DURATION (seconds):</label>
-                        <input type="number" 
-                               name="exercises[${exerciseData.id}][duration]" 
-                               value="5" min="1" required class="inline-input">
 
-                        <label>REPETITIONS:</label>
-                        <input type="number" 
-                               name="exercises[${exerciseData.id}][reps]" 
-                               value="10" min="1" required class="inline-input">
+                        <!-- AMEND: Smaller, centered form fields (100px wide, centered labels/inputs) -->
+                        <div style="margin: 30px 0;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 8px;">DURATION (seconds):</label>
+                            <input type="number" 
+                                   name="exercises[${exerciseData.id}][duration]" 
+                                   value="5" min="1" required 
+                                   style="width: 100px; padding: 10px; font-size: 1.1rem; text-align: center; border-radius: 12px; border: none;">
 
-                        <label>WEEKLY SESSIONS:</label>
-                        <input type="number" 
-                               name="exercises[${exerciseData.id}][perWeek]" 
-                               value="3" min="1" required class="inline-input">
+                            <label style="display: block; font-weight: bold; margin: 25px 0 8px 0;">REPETITIONS:</label>
+                            <input type="number" 
+                                   name="exercises[${exerciseData.id}][reps]" 
+                                   value="10" min="1" required 
+                                   style="width: 100px; padding: 10px; font-size: 1.1rem; text-align: center; border-radius: 12px; border: none;">
+
+                            <label style="display: block; font-weight: bold; margin: 25px 0 8px 0;">WEEKLY SESSIONS:</label>
+                            <input type="number" 
+                                   name="exercises[${exerciseData.id}][perWeek]" 
+                                   value="3" min="1" required 
+                                   style="width: 100px; padding: 10px; font-size: 1.1rem; text-align: center; border-radius: 12px; border: none;">
+                        </div>
 
                         <input type="hidden" name="exercises[${exerciseData.id}][id]" value="${exerciseData.id}">
                         <input type="hidden" name="exercises[${exerciseData.id}][name]" value="${exerciseData.name}">
                         <input type="hidden" name="exercises[${exerciseData.id}][illustration_sequence]" value="${exerciseData.illustration_sequence}">
 
-                        <button type="button" class="remove-exercise-btn" data-id="${exerciseData.id}">
+                        <!-- AMEND: Centered and styled Remove button -->
+                        <button type="button" class="remove-exercise-btn" data-id="${exerciseData.id}" 
+                                style="margin-top: 20px; padding: 12px 30px; background: #dc3545; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold;">
                             Remove
                         </button>
                     </div>
@@ -153,7 +164,6 @@
         addBtn.addEventListener('click', handleAddExercise);
         prescribedContainer.addEventListener('click', handleRemoveExercise);
 
-        // Initial state
         if (assignedExerciseIds.size === 0) {
             noExercisesMessage.style.display = 'block';
         }

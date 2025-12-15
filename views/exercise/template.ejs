@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= escapeHTML(exercise.name) %></title>
+  <link rel="stylesheet" href="<%= BASE_PATH %>/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <h1>NHS PhysioHUB</h1>
+  <hr>
+  <div class="container">
+    <% 
+      let params;
+      if (exercise.custom_checklist) {
+        params = JSON.parse(exercise.custom_checklist);
+      } else {
+        params = JSON.parse(exercise.checklist); 
+      }
+    %>
+   
+    <h1><%= escapeHTML(exercise.name) %></h1>
+    <br>
+    <img src="<%= BASE_PATH %>/exercises/img/<%= exercise.illustration_sequence %>.jpg"
+         alt="<%= escapeHTML(exercise.name) %>"
+         style="max-width: 300px; display: block; margin: 20px auto; border-radius: 12px;">
+    <h2>Client's Aim</h2>
+    <p><%= exercise.aim ? escapeHTML(exercise.aim) : 'To strengthen and rehabilitate the affected area.' %></p>
+    <br>
+    <h2>Client's Instructions</h2>
+   
+    <p><%= escapeHTML(exercise.description) %></p>
+    <br>
+    <h3>Perform <%= params.reps %> sets of <%= params.duration %> reps/duration</h3>
+    <h3>Do <%= params.perWeek %> sessions per week</h3>
+    <div id="timer-widget" style="margin: 40px 0; text-align: center;">
+      <h2>Duration Achieved: <span id="time-display"></span></h2>
+      <button id="start-timer">Start Recording</button>
+    </div>
+    <br>
+    <a href="<%= BASE_PATH %>/patient/dashboard">← Back to Dashboard</a>
+    <a href="<%= BASE_PATH %>/logout" style="margin-left: 20px;">Logout</a>
+  </div>
+  <script src="<%= BASE_PATH %>/js/timer.js"></script>
+</body>
+</html>
