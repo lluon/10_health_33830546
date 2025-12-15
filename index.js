@@ -216,7 +216,7 @@ app.post('/patient/illness', requireLogin, requireRole('patient'), async (req, r
     const { illness } = req.body;
     await pool.execute('UPDATE patients SET illness = ?, attended = FALSE WHERE id = ?', [illness, req.session.userId]);
     req.flash('success', 'Illness description submitted.');
-    res.redirect(`./patient/dashboard`);
+    res.redirect(`./dashboard`);
 });
 
 // Single reusable exercise page with support for custom prescriptions
