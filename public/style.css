@@ -250,7 +250,7 @@ tr:nth-child(even) {
 
 /* NHS Logo */
 .header-logo {
-  height: 60px;          
+  height: 100px;          
   width: auto;
   margin-right: 15px;     
   vertical-align: middle;
