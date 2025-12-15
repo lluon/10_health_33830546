@@ -3,25 +3,38 @@ NHS Physio Hub
 ---
 
 ## Table of Contents
+
 - [CONCEPT](#concept)
 - [RESEARCH QUESTION](#research-question)
 - [OVERVIEW](#overview)
 - [Project Structure](#project-structure)
 - [ARCHITECTURE](#architecture)
 - [DATA MODEL](#data-model)
-  - [Data Model Schema: `patients` Table](#data-model-schema-patients-table)
+  - [ER Diagram (Conceptual Model)](#er-diagram-conceptual-model)
 - [USER FUNCTIONALLITY](#user-functionallity)
+  - [Key User Roles](#key-user-roles)
+  - [Functional Features by Role](#functional-features-by-role)
+    - [Patient Features](#patient-features)
+    - [Therapist Features](#therapist-features)
+    - [Admin Features](#admin-features)
+    - [Common Functionality](#common-functionality)
   - [1. Public Access and Registration](#1-public-access-and-registration)
+    - [Overview](#overview)
+    - [Public Features](#public-features)
+    - [Registration Process (Patient Only)](#registration-process-patient-only)
+    - [Self-Registration Rules](#self-registration-rules)
+    - [Login for All Users](#login-for-all-users)
   - [Pre-installed User Accounts for Testing](#pre-installed-user-accounts-for-testing)
-  - [2. Patient Journey (User Type: patient)](#2-patient-journey-user-type-patient)
-  - [3. Physiotherapist Journey (User Type: therapist)](#3-physiotherapist-journey-user-type-therapist)
-  - [4. Admin Journey (User Type: admin)](#4-admin-journey-user-type-admin)
+  - [Therapist Journey](#therapist-journey)
+  - [Admin Journey](#admin-journey)
 - [Advanced Techniques](#advanced-techniques)
   - [1. Role-Based Access Control (RBAC) Middleware](#1-role-based-access-control-rbac-middleware)
-  - [2. Secure Hashing with Salt and Pepper](#2-secure-hashing-with-salt-and-pepper)
-  - [3. Handling Complex Data with MySQL JSON](#3-handling-complex-data-with-mysql-json)
-  - [4. Role-Based Access Control (RBAC) in NHS Physio Hub](#4-role-based-access-control-rbac-in-nhs-physio-hub)
+  - [2. Secure Password Hashing with Pepper](#2-secure-password-hashing-with-pepper)
+  - [3. Hybrid Relational + JSON Data Modelling](#3-hybrid-relational--json-data-modelling)
+  - [4. Dynamic Client-Side Exercise Assignment UI](#4-dynamic-client-side-exercise-assignment-ui)
+  - [5. Client-Side Timer Widget](#5-client-side-timer-widget)
 - [AI DECLARATION](#ai-declaration)
+- [Author & Declaration](#author--declaration)
 
 ---
 
@@ -37,9 +50,7 @@ The application's necessity and potential impact are framed by this investigativ
 
 ## OVERVIEW
 
-The NHS Physio Hub is a dynamic web application developed as the core practical case study for the second-year Creative Computing course at Goldsmiths. Its primary objective is to prototype a functional, real-world solution for the health sector, specifically addressing delays in non-urgent NHS physiotherapy waiting lists.
-
-The application serves as a clinic management system with three key roles: Patient (e.g., sandroverrone), Therapist (e.g., dave_rowland), and Admin (e.g., gold). Patients register to submit illness reports, which physiotherapists review and triage. The system enables therapists to prescribe structured exercise plans, stored as JSON objects, which patients access in their personalised dashboards, complete with timers and checklists, effectively automating the delivery of standardised, non-urgent rehabilitation advice.
+The NHS PhysioHUB is a web application prototype developed for the Dynamic Web Applications module at Goldsmiths, University of London. It simulates a physiotherapy clinic management system aimed at reducing delays in non-urgent NHS physiotherapy referrals. Patients register, submit illness descriptions, and receive personalised exercise plans prescribed by therapists. Therapists review patient reports, assign customised exercises, and trigger confirmation notifications. Admins manage user accounts. The app uses role-based access, secure authentication, and a relational MySQL database with JSON for flexible prescriptions. It demonstrates full-stack Node.js/Express development with EJS templating. 
 
 ##  Project Structure
 
@@ -50,14 +61,19 @@ The application serves as a clinic management system with three key roles: Patie
 | **package.json** |  | Project Dependencies |
 | **public/** |  | Static Assets (CSS/JS/IMG) |
 | **public/js/timer.js** | | Client-Side Stopwatch Logic |
-| **src/controllers/** | | Business Logic Functions |
-| **src/controllers/email.js** |  | Simulated Email Sender |
-| **src/models/patient.js** | | Patient/User DB Functions |
-| **src/routes/patient.js** | Placeholder | Patient Routes Defined |
-| **views/exercise/** | Done | Individual Exercise Pages |
-| **views/admin\_*** | Done | Admin Templates |
-| **views/therapist\_*** | Done | Therapist Templates |
-| **views/patient\_*** | Done | Patient Templates |
+| **controllers/email.js** |  | Simulated Email Sender |
+| **model/patient.js** | | Patient/User DB Functions |
+| **views/exercise/template.ejs** | | template Exercise Pages |
+| **about.ejs** |  | brief description of the service |
+| **views/admin_dashboard** |  | admin assign board |
+| **views/admin_edit.ejs** |  | Admin Templates |
+| **views/home.ejs*** |  | home landing page |
+| **views/login.ejs*** |  | login page |
+| **views/patient_dashboard.ejs*** |  | patient dashboard |
+| **views/register.ejs*** |  | register page |
+| **views/therapist_dashboard** |  | Therapist dashboard |
+| **views/therapist_patient** |  | Therapist assign board |
+
 
 10_health_33830546/<br>
 ├── .env<br>
@@ -66,19 +82,11 @@ The application serves as a clinic management system with three key roles: Patie
 ├── package-lock.json<br>
 ├── controllers/<br>
 │   └── email.js<br>
-├── models/<br>
-│   └── patient.js<br>
 ├── routes/<br>
 │   └── patient.js<br>
 └── views/<br>
         ├── exercise/<br>
-        │   ├── 0001.ejs<br>
-        │   ├── 0002.ejs<br>
-        │   ├── 0003.ejs<br>
-        │   ├── 0004.ejs<br>
-        │   ├── 0005.ejs<br>
-        │   └── 0006.ejs<br>
-        ├── _exercise_assignment_partial.ejs<br>
+        │   └── template.ejs<br>
         ├── about.ejs<br>
         ├── admin_dashboard.ejs<br>
         ├── admin_edit.ejs_<br>
@@ -92,18 +100,22 @@ The application serves as a clinic management system with three key roles: Patie
 
 # ARCHITECTURE
 
-The application uses a robust two-tier architecture:
+The application follows a classic two-tier architecture:
 
-Application Tier: Built on Node.js and Express.js for routing, session management, and handling all application logic. EJS is used as the templating engine for rendering dynamic views. This tier features custom Role-Based Access Control (RBAC) middleware to secure routes.
+Application Tier: Node.js with Express.js handles routing, session management, middleware, and business logic. EJS is used for server-side templating to render dynamic views. Custom middleware enforces role-based access control (RBAC). Static assets (CSS, JS, images) are served from the /public directory.
+Data Tier: MySQL database (health) accessed via mysql2/promise connection pool. Data operations use asynchronous queries.
 
-Data Tier: Utilizes a MySQL database. The entire application data is stored within a single, highly denormalized table to simplify the prototype’s data layer.
+The flow starts at the home page, branches through registration/login, and directs users to role-specific dashboards (patient, therapist, admin). All routes are defined in index.js. The app supports deployment with configurable BASE_PATH for subdirectories.
+(98 words)
+Data Model
+The database uses a normalised relational schema with four tables to manage users, exercises, treatments, and assignments:
 
-The accompanying diagram illustrates the flow from the home page through registration, login, and subsequent role-branching to the respective patient, therapist, and admin dashboards.
+patients: Stores user credentials, personal details, role, and illness report.
+exercises: Pre-defined exercises with name, description, illustration, and default checklist (JSON).
+ongoing_treatment: Records treatment metadata (timing, progression) linked by patient's NHS number.
+treatment_exercise: Junction table linking treatments to exercises, with order and custom_checklist (JSON) for personalised reps/duration/perWeek.
 
-
-The application employs a single, denormalized table called patients. This table integrates all necessary data fields, including user credentials, personal information (PII), illness reports, and treatment plans.
-
-The key fields are: id (PK), username, password_hash, user type (crucial for RBAC), illness (TEXT), attended (TINYINT for waiting status), and the critical exercises_json (JSON type). exercises_json stores the therapist’s assigned treatment as an array of structured exercise objects, eliminating the need for separate exercise and treatment tables in this simplified prototype.
+This hybrid approach ensures referential integrity while allowing flexible custom prescriptions via JSON.
 
 
 
@@ -114,42 +126,167 @@ The application employs a single, denormalized table called patients. This table
 
 The key fields are: id (PK), username, password_hash, user type (crucial for RBAC), illness (TEXT), attended (TINYINT for waiting status), and the critical exercises_json (JSON type). exercises_json stores the therapist’s assigned treatment as an array of structured exercise objects, eliminating the need for separate exercise and treatment tables in this simplified prototype.
 
-er Diagram
 
-## Data Model Schema: `patients` Table
 
-| Field | Data Type | Role/Description | Notes |
-| :--- | :--- | :--- | :--- |
-| **`id`** | `INT` | Primary Key (PK) | Auto-incrementing |
-| **`username`** | `VARCHAR` | Unique username for login. | |
-| **`password_hash`** | `VARCHAR` | Encrypted password (hash). | Uses bcrypt |
-| **`user_type`** | `VARCHAR` | User's role: `patient`, `therapist`, or `admin`. | Crucial for RBAC |
-| **`nhs_number`** | `VARCHAR` | Patient's NHS number. | |
-| **`name`** | `VARCHAR` | First name. | |
-| **`surname`** | `VARCHAR` | Last name. | |
-| **`dob`** | `DATE` | Date of Birth. | |
-| **`email`** | `VARCHAR` | Email address. | |
-| **`address`** | `VARCHAR` | Residential address. | |
-| **`illness`** | `TEXT` | Patient's self-reported illness description. | |
-| **`attended`** | `TINYINT` | Request status: `0` (Waiting) or `1` (Assigned/Attended). | |
-| **`exercises_json`** | `JSON` | Assigned exercise plan (structured JSON array). | Contains the treatment plan |
+# ER Diagram (Conceptual Model)
+type: mermaid
+
+### Entities and Attributes
+
+#### textpatients
+| Field              | Type         | Constraints/Notes                  |
+|--------------------|--------------|------------------------------------|
+| **id**             | INT          | PK, Auto-increment                 |
+| username           | VARCHAR      | Unique                             |
+| password           | VARCHAR      | Hashed                             |
+| role               | VARCHAR      | e.g., patient, therapist, admin    |
+| **nhs_number**     | VARCHAR      | Unique, FK to ongoing_treatment    |
+| name               | VARCHAR      |                                    |
+| surname            | VARCHAR      |                                    |
+| dob                | DATE         | Date of birth                      |
+| address            | VARCHAR      |                                    |
+| email              | VARCHAR      |                                    |
+| illness            | TEXT         | Patient-reported illness           |
+| attended           | BOOLEAN      | 0 = waiting, 1 = attended          |
+
+#### ongoing_treatment
+| Field              | Type         | Constraints/Notes                  |
+|--------------------|--------------|------------------------------------|
+| **id**             | INT          | PK, Auto-increment                 |
+| nhs_number         | VARCHAR      | FK → textpatients.nhs_number       |
+| timing             | DATETIME     | Treatment schedule                 |
+| progression        | TEXT         | Progress notes                     |
+
+#### treatment_exercise (Junction Table)
+| Field              | Type         | Constraints/Notes                  |
+|--------------------|--------------|------------------------------------|
+| **id**             | INT          | PK, Auto-increment                 |
+| treatment_id       | INT          | FK → ongoing_treatment.id          |
+| exercise_id        | INT          | FK → exercises.id                  |
+| order_num          | INT          | Sequence in treatment plan         |
+| custom_checklist   | JSON         | Custom checklist items             |
+
+#### exercises
+| Field                    | Type         | Constraints/Notes                  |
+|--------------------------|--------------|------------------------------------|
+| **id**                   | INT          | PK, Auto-increment                 |
+| name                     | VARCHAR      | Exercise title                     |
+| description              | TEXT         | Full instructions                  |
+| illustration_sequence    | VARCHAR      | Image/video references             |
+| checklist                | JSON         | Default checklist items            |
+
+### Relationships
+textpatients (1) ─────(nhs_number)─────▶ (0..) ongoing_treatment
+│
+│ (1)
+▼
+(0..) treatment_exercise (0..)
+│
+│ (many-to-many)
+▼
+exercises (0..)
+text**Relationship Summary:**
+
+- One **patient** (`textpatients`) can have **zero or many** ongoing treatments (`ongoing_treatment`).
+- One **ongoing_treatment** belongs to exactly one patient.
+- One **ongoing_treatment** can include **many** treatment exercises.
+- Each **treatment_exercise** links one treatment to one exercise (many-to-many between `ongoing_treatment` and `exercises`).
+- Exercises can be reused across multiple treatments.
+
+
 
 # USER FUNCTIONALLITY
+
+### Key User Roles
+- **Patient**: Registers, logs in, views assigned treatment plan, marks exercises as completed, views progress.
+- **Therapist**: Logs in, views list of assigned patients, creates/modifies ongoing treatments, assigns exercises, monitors patient progress.
+- **Admin**: Manages users (approve/reject registrations, assign therapists to patients), oversees system.
+
+### Functional Features by Role
+
+#### Patient Features
+| Feature                          | Description                                                                 | Notes                          |
+|----------------------------------|-----------------------------------------------------------------------------|--------------------------------|
+| Register / Login                 | Create account with NHS number and personal details; secure login           | NHS number validated as unique |
+| View Profile                     | See personal information, illness description                                | Can edit non-sensitive fields  |
+| View Assigned Treatment          | Display current ongoing treatment with timing and progression               | Read-only for patients         |
+| View Exercise Plan               | List of assigned exercises in order, with descriptions, illustrations, checklists | Ordered by `order_num`         |
+| Complete Exercise                | Mark checklist items as done, add notes; update custom_checklist            | Progress saved automatically   |
+| View Progress                    | Summary of completed exercises and overall progression                      | Visual indicators encouraged   |
+| Request Help / Contact Therapist | Send message or flag issues (future extension)                              |                                |
+
+#### Therapist Features
+| Feature                          | Description                                                                 | Notes                          |
+|----------------------------------|-----------------------------------------------------------------------------|--------------------------------|
+| Login                            | Secure login with role-based access                                         |                                |
+| View Patient List                | See all patients assigned to them (based on ongoing_treatment)              | Filter/search by name/NHS      |
+| View Patient Details             | Access full patient profile and illness description                         | Read-only personal data        |
+| Create/Edit Ongoing Treatment    | Add or update treatment for a patient (timing, progression notes)           | Linked via nhs_number          |
+| Assign Exercises                 | Select exercises from library, set order, customize checklist if needed     | Creates entries in treatment_exercise |
+| Reorder / Remove Exercises       | Modify the sequence or remove exercises from a treatment plan               | Updates order_num              |
+| Monitor Progress                 | View patient-completed checklists and progression updates                   | Real-time or on refresh        |
+| Update Progression Notes         | Add professional notes to ongoing_treatment.progression                     |                                |
+
+#### Admin Features
+| Feature                          | Description                                                                 | Notes                          |
+|----------------------------------|-----------------------------------------------------------------------------|--------------------------------|
+| Login                            | Secure login with highest privileges                                        |                                |
+| Manage Users                     | View all users, approve/reject new registrations, edit roles                | Patients start as "waiting"    |
+| Assign Therapist to Patient      | Link a therapist to a patient's ongoing treatment (or set attended=1)       | Triggers patient access        |
+| View System Overview             | Statistics on users, active treatments, etc.                                |                                |
+| Manage Exercise Library          | Add/edit/remove exercises (name, description, illustrations, checklist)     | Global for all therapists      |
+
+### Common Functionality
+| Feature              | Description                                             | Available To          |
+|----------------------|---------------------------------------------------------|-----------------------|
+| Secure Authentication| Password hashing, session management                     | All users             |
+| Role-Based Access    | Pages and actions restricted by `role` field             | All users             |
+| Responsive UI        | Mobile-friendly views for patients completing exercises | All users             |
+| Notifications        | Reminders for upcoming timings or incomplete exercises  | Patients (optional)   |
+
 
 The application's features are strictly role-based, accessible after successful login.
 
 ### 1. Public Access and Registration
-The public interface includes the / (Home) page, /about page, and the primary access points: /register and /login.
+### 1. Public Access and Registration
 
-Registration (/register): This form allows any new user to create an account by submitting PII (Name, NHS number, DOB, etc.), a unique username, and a password. Critically, the form includes a selection for the user_type:
+#### Overview
+This section describes the functionality available to unauthenticated (public) users and the patient registration process.
 
-New users can choose to register as a patient (the default and most common choice).
+#### Public Features
+| Feature                  | Description                                                                 | Notes                              |
+|--------------------------|-----------------------------------------------------------------------------|------------------------------------|
+| View Landing Page        | Home page with system overview, benefits, and login/registration links     | No authentication required         |
+| View About/Information   | Static pages explaining the platform, privacy policy, terms of service     | Publicly accessible                |
+| View FAQ / Help          | Common questions and guides for patients and therapists                     |                                    |
+| Therapist Directory      | Optional: Public list of available therapists (names/specialties only)      | No patient data exposed            |
 
-New users can also choose to register as a therapist.
+#### Registration Process (Patient Only)
+| Step                     | Action                                                                      | Details / Validation               |
+|--------------------------|-----------------------------------------------------------------------------|------------------------------------|
+| Access Registration Form | Click "Register" on landing page or login screen                             | Public access                      |
+| Enter Personal Details   | Fill in: name, surname, dob, address, email, nhs_number, illness description| NHS number must be unique          |
+| Choose Username/Password | Set unique username and secure password                                      | Password strength enforced         |
+| Submit Registration      | Form submission creates new record in `textpatients`                        | role = 'patient', attended = 0 (waiting) |
+| Await Approval           | Patient account created but access restricted until admin approval           | Cannot login fully yet             |
+| Admin Review             | Admin views pending registrations (attended=0), verifies NHS number/details| Manual or semi-automated check     |
+| Approval / Assignment    | Admin sets attended=1 and optionally assigns a therapist                    | Patient can now login fully        |
+| Notification             | Email or in-system notification sent to patient upon approval               | Welcomes them and prompts login    |
+| Rejection (Optional)     | Admin rejects invalid registrations (deletes or flags)                      | Notification sent if possible      |
 
-Upon submission, the user's data is inserted into the patients table, and the password is hashed (password_hash).
+#### Self-Registration Rules
+- Only **patients** can self-register (therapists and admins are created manually by admin).
+- **NHS number** is mandatory and must be unique (prevents duplicate accounts).
+- Upon registration, patient is in "waiting" state (`attended = 0`).
+- Full access (viewing treatment, exercises) is granted only after admin approval (`attended = 1`).
 
-Pre-installed Users for Testing: The following three accounts are pre-inserted into the database for immediate testing convenience, demonstrating each role's initial state:
+#### Login for All Users
+| Feature                  | Description                                                                 | Notes                              |
+|--------------------------|-----------------------------------------------------------------------------|------------------------------------|
+| Unified Login Page       | Single entry point for patients, therapists, and admins                     | Username + password                |
+| Role-Based Redirection   | After login, redirect to role-specific dashboard                             | Based on `role` field              |
+| Forgotten Password       | Basic password reset via email (future enhancement)                         |                                    |
+| Session Management       | Secure sessions with timeout and logout                                     |                                    |
 
 ## Pre-installed User Accounts for Testing
 
@@ -161,153 +298,68 @@ These accounts are pre-inserted into the `patients` table for immediate demonstr
 | `dave_rowland` | Dave Rowland | `am@R0n3_VP` | `therapist` | 1111111112 |
 | `gold` | gold smiths | `smiths123ABC$` | `admin` | 0000000001 |
 
-### 2. Patient Journey (User Type: patient)
-Upon login (either a newly registered patient or sandroverrone), the patient is taken to the /patient/dashboard.
+Dashboard (/patient/dashboard): Submit illness if none recorded. Once assigned, view prescribed exercises with images, instructions, and custom parameters.
+Exercise page (/exercise/:id): Detailed view with illustration, aim, description, prescription details, and client-side timer for recording duration.
 
-Initial Visit: They submit an illness description via a form, which updates their illness field and sets attended=0 (waiting).
+## Therapist Journey
 
-Post-Assignment: Once a therapist has reviewed and assigned treatment, the dashboard dynamically displays their personalised Exercise List, parsed from the exercises_json column.
+Dashboard (/therapist/dashboard): Table of patients with search by name/surname/NHS number/illness.
+Patient view (/therapist/patient/:id): See illness, dynamically add/remove exercises with custom duration/reps/perWeek. Submit assigns treatment, sets attended=TRUE, and sends simulated confirmation email (console log).
 
-Treatment View: Patients can navigate to specific exercise pages (/exercise/:id) where they view the description, an illustration sequence (placeholder), and interact with a Client-Side Timer and checklist to track their progress.
+## Admin Journey
 
-### 3. Physiotherapist Journey (User Type: therapist)
-Login Example: A newly registered therapist or dave_rowland.
+Dashboard (/admin/dashboard): Table of all non-deactivated users with Edit and Deactivate actions.
+Edit (/admin/edit/:id): Update name, surname, email, illness.
 
-Dashboard (/therapist/dashboard): Lists all patients, featuring pagination and robust search/filter functionality by Name, NHS Number, and Illness. A quick filter for New Requests (attended=0) is prioritised.
+All pages include navigation (Home/Logout) and flash messages for feedback.
 
-Evaluation and Assignment: The therapist views a patient's full details (/therapist/patient/:id) and uses the dedicated form to compile and assign a treatment plan.
-
-Treatment Update: Posting the form to /therapist/assign/:id performs a critical update: it populates the patient’s exercises_json field and sets attended=1. This action simultaneously triggers a Simulated Confirmation Email (logged to console) with an HTML quick-access button to the patient’s dashboard.
-
-### 4. Admin Journey (User Type: admin)
-Login Example: gold / smiths123ABC$
-
-Admins have full oversight and management capabilities, including the ability to view, edit, and audit all patient rows. They can perform Soft Deletion by changing a user’s user_type to 'deactivated', preventing future logins while retaining historical data.
 
 # Advanced Techniques
-The development of the NHS Physio Hub incorporated several advanced techniques to ensure security, maintainability, and efficient handling of complex, health-related data within the simplified single-table architecture. These techniques demonstrate proficiency in secure full-stack development.
-
 ## 1. Role-Based Access Control (RBAC) Middleware
-To enforce secure access, a custom Express middleware function, requireRole(), was implemented. This middleware runs before any protected route and checks the user's req.session.user_type against the required permission, preventing unauthorized users from accessing dashboards or privileged APIs (vertical privilege escalation).
-
-This is crucial in a health application where data separation between patients, therapists, and admins is mandatory.
-
-Code Snippet (File: src/middleware/auth.js)
-
-// Middleware to ensure the user has the required role
-function requireRole(allowedRole) {
+Custom middleware protects routes by role, preventing unauthorised access.
+Code (index.js):
+JavaScriptfunction requireRole(allowedRole) {
     return (req, res, next) => {
-        if (!req.session.user_type || req.session.user_type !== allowedRole) {
-            console.warn(`403 Access denied for role: ${req.session.user_type || 'Guest'}`);
-            return res.status(403).render('error', { message: 'Access Denied.' });
+        if (req.session.role !== allowedRole) {
+            req.flash('error', 'Access denied: insufficient privileges.');
+            return res.redirect(`${BASE_PATH || ''}/login`);
         }
-        next(); // Permission granted
+        next();
     };
 }
-// Usage Example in router:
-// router.get('/therapist/dashboard', requireRole('therapist'), therapistController.getDashboard);
+// Usage example:
+app.get('/patient/dashboard', requireLogin, requireRole('patient'), ...);
 
-## 2. Secure Hashing with Salt and Pepper
-Standard password hashing uses a salt to secure passwords. For an application handling sensitive PII, an extra layer of defense was added using a Pepper. The pepper is a secret, hardcoded key stored in the environment variables, which is combined with the user's password and the unique salt before hashing with bcrypt.
+## 2. Secure Password Hashing with Pepper
+Passwords are hashed with bcrypt (12 rounds) after appending a secret pepper from .env.
+Code (index.js registration/login):
+JavaScriptconst PEPPER = process.env.BCRYPT_PEPPER || '';
+const hashedPassword = await bcrypt.hash(password + PEPPER, 12);
+// Login:
+const match = await bcrypt.compare(password + PEPPER, user.password);
 
-This defends against scenarios where an attacker compromises both the database (obtaining hashes and salts) and the source code, as the pepper key is kept external in the .env file, which is excluded from version control.
+## 3. Hybrid Relational + JSON Data Modelling
+Pre-defined exercises use default checklist JSON. Assignments override with custom_checklist JSON in junction table, parsed dynamically in views.
+Code (patient dashboard EJS):
+ejslet params = {};
+try {
+    if (ex.custom_checklist) {
+        params = JSON.parse(ex.custom_checklist);
+    } else {
+        params = JSON.parse(ex.checklist || '{"duration": "N/A", "reps": "N/A", "perWeek": "N/A"}');
+    }
+} catch (e) { ... }
 
-Code Snippet (File: src/utils/security.js)
+## 4. Dynamic Client-Side Exercise Assignment UI
+Therapist page uses JavaScript to add/remove exercises client-side before form submission, rendering partials with inline templating.
+Code (views/therapist_patient.ejs script):
+JavaScriptfunction renderExercisePartial(exerciseData) { return `...EJS-like HTML string...`; }
+addBtn.addEventListener('click', handleAddExercise);
+prescribedContainer.addEventListener('click', handleRemoveExercise);
 
-const bcrypt = require('bcrypt');
-const PEPPER = process.env.PEPPER_SECRET; // Stored securely in .env
-
-async function hashPassword(password) {
-    const saltRounds = 10;
-    const saltedPassword = password + PEPPER; // Apply the pepper
-    const salt = await bcrypt.genSalt(saltRounds);
-    return bcrypt.hash(saltedPassword, salt); // Hash with salt
-}
-
-// Verification function reverses the process
-async function comparePassword(inputPassword, storedHash) {
-    const saltedPassword = inputPassword + PEPPER;
-    return bcrypt.compare(saltedPassword, storedHash);
-}
-
-## 3. Handling Complex Data with MySQL JSON
-Instead of creating separate tables (e.g., treatments, exercises, treatment_exercises), the application uses the MySQL JSON data type in the exercises_json column.
-
-This allows the therapist to prescribe a full, structured array of exercises (each with repetition, duration, and session details) within a single database field. The application layer then parses this JSON object to render the dynamic exercise list on the patient's dashboard, demonstrating a hybrid data modeling approach suitable for the prototype's constraints.
-
-Example Data Structure Stored in exercises_json:
-
-[
-  {
-    "id": 1,
-    "name": "Shoulder Blade Squeeze",
-    "reps": 10,
-    "sets": 3,
-    "duration": "N/A",
-    "notes": "Hold squeeze for 5 seconds."
-  },
-  {
-    "id": 2,
-    "name": "Knee Extension",
-    "reps": 15,
-    "sets": 3,
-    "duration": "N/A",
-    "notes": "Slow and controlled movement."
-  }
-]
-## 4. Role-Based Access Control (RBAC) in NHS Physio Hub
-
-RBAC is the mechanism that ensures users can only access the resources (pages, forms, API endpoints) that are appropriate for their designated user_type (patient, therapist, or admin). This prevents security breaches like a patient accidentally or maliciously accessing a therapist's patient lists, or a therapist viewing the admin's user deletion controls.
-
-How my RBAC Middleware Works
-my application uses a custom Express middleware function, requireRole(), to enforce access rules on a per-route basis.
-
-Authentication and Session Check: When a user successfully logs in, my server checks their credentials against the patients table. Upon success, the user's user_type is stored securely in the session object (e.g., req.session.user_type = 'therapist').
-
-Middleware Execution: On every protected route, Express executes the requireRole() function before allowing the request to proceed to the main controller logic.
-
-Permission Validation: The requireRole() function checks two things:
-
-Is the user logged in? (req.session.user_type exists).
-
-Does the user's current role match the required role for that route? (e.g., Is 'therapist' equal to 'therapist'?).
-
-Outcome:
-
-If the roles match, the middleware calls next(), and the user is granted access to the page/resource.
-
-If the roles do not match, the middleware terminates the request, logs the access attempt, and sends a 403 Access Denied error to the user.
-
-Conceptual Diagram of RBAC Flow
-This diagram illustrates the process:
-
-Request: A user attempts to access a specific URL (e.g., /therapist/assign/:id).
-
-RBAC Check (auth.js): The middleware intercepts the request and checks the session's user_type.
-
-Decision: Only if the user_type is 'therapist' is the request allowed to proceed to the main Express route handler to process the assignment. All other roles are blocked.
-
-Key Code Snippet (Re-emphasizing the Logic)
-The following code is the core of my security model, ensuring that only the correct actors can perform sensitive operations:
-
-File: src/middleware/auth.js
-
-JavaScript
-
-// Middleware to ensure the user has the required role
-function requireRole(allowedRole) {
-    return (req, res, next) => {
-        // Check if session exists AND if the user's role matches the allowed role
-        if (!req.session.user_type || req.session.user_type !== allowedRole) {
-            console.warn(`403 Access denied for role: ${req.session.user_type || 'Guest'}`);
-            return res.status(403).render('error', { message: 'Access Denied.' });
-        }
-        next(); // Permission granted, proceed to the route controller
-    };
-}
-// Usage: router.get('/therapist/dashboard', requireRole('therapist'), ...);
-
-This method makes my application highly secure because access permissions are managed centrally and are explicitly defined for every single protected endpoint.
+## 5. Client-Side Timer Widget
+Stopwatch-style timer on exercise pages for patients to record achieved duration (no persistence in prototype).
+Code (public/js/timer.js).
 
 # AI DECLARATION
 
